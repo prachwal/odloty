@@ -34,23 +34,17 @@ The Crew Scheduling System is a production-ready SQL Server database solution fo
 :r complete_crew_system.sql
 ```
 
-**Option 2: Step-by-Step**
+**Option 2: Step-by-Step (using individual report files)**
 
 ```sql
--- 1. Create database and schema
-:r 01_create_crew_database.sql
+-- 1. Run complete system setup
+:r complete_crew_system.sql
 
--- 2. Insert sample data
-:r 02_insert_crew_data.sql
-
--- 3. Create business logic
-:r 03_crew_logic.sql
-
--- 4. (Optional) Run tests
-:r 04_test_crew_logic.sql
-
--- 5. (Optional) View reports
-:r 05_reports.sql
+-- 2. (Optional) Run individual reports for testing
+:r 01_report_crew_in_flight.sql        -- Report 1: Crew currently in flight
+:r 02_report_crew_exceeding_limits.sql -- Report 2: Crew exceeding hour limits
+:r 03_report_monthly_hours.sql         -- Report 3: Monthly hours worked
+:r 04_report_schedule_crew_for_flight.sql -- Report 4: Available crew for scheduling
 ```
 
 ### Verification
@@ -82,20 +76,34 @@ EXEC sp_ScheduleCrew @FlightID = 86;
 - High availability architecture
 - Troubleshooting guide
 
+📕 **[PDF Documentation](COMPREHENSIVE_DOCUMENTATION.pdf)** - Same comprehensive guide in PDF format with embedded diagrams
+
+🖼️ **Database Diagrams:**
+
+- **[Entity Relationship Diagram](er_diagram.png)** - Visual representation of database schema and relationships
+- **[Architecture Diagram](architecture_diagram.png)** - Multi-tier high availability architecture overview
+
 ## Project Structure
 
-```
+```text
 odloty/
-├── 00_reset_crew_database.sql          # Clear database data
-├── 01_create_crew_database.sql         # Create database schema
-├── 02_insert_crew_data.sql             # Insert sample data (50 crew, 100 flights)
-├── 03_crew_logic.sql                   # Business logic (functions, procedures, views)
-├── 04_test_crew_logic.sql              # Test scripts
-├── 05_reports.sql                      # Report queries
-├── complete_crew_system.sql            # All-in-one deployment script
-├── COMPREHENSIVE_DOCUMENTATION.md      # Complete technical documentation
+├── complete_crew_system.sql            # All-in-one deployment script (combines all functionality)
+├── 01_report_crew_in_flight.sql        # Report 1: Crew currently in flight
+├── 02_report_crew_exceeding_limits.sql # Report 2: Crew exceeding hour limits
+├── 03_report_monthly_hours.sql         # Report 3: Monthly hours worked (payroll)
+├── 04_report_schedule_crew_for_flight.sql # Report 4: Available crew for scheduling
+├── COMPREHENSIVE_DOCUMENTATION.md      # Complete technical documentation (Markdown)
+├── COMPREHENSIVE_DOCUMENTATION.pdf     # Complete technical documentation (PDF)
+├── er_diagram.png                      # Entity Relationship Diagram (PNG)
+├── er_diagram.dot                      # Entity Relationship Diagram (Graphviz source)
+├── architecture_diagram.png            # Multi-tier Architecture Diagram (PNG)
+├── architecture_diagram.dot            # Multi-tier Architecture Diagram (Graphviz source)
+├── merge_reports.py                    # Python script to merge individual reports
+├── python_reports.py                   # Python implementation of reports
 ├── README.md                           # This file (project overview)
-└── zadanie.md                          # Original requirements (in Polish)
+├── zadanie.md                          # Original requirements (in Polish)
+├── VERIFICATION_SUMMARY.md             # Verification and testing summary
+└── ocena.md                            # Assessment/evaluation document
 ```
 
 ## Key Capabilities
@@ -150,21 +158,21 @@ SELECT * FROM vw_FlightCrew WHERE StatusID = 2;
 
 ```sql
 -- Crew exceeding or approaching hour limits
-:r 05_reports.sql  -- Section: Report 2
+:r 02_report_crew_exceeding_limits.sql
 ```
 
 **Report 3: Payroll Report**
 
 ```sql
 -- Monthly hours worked per employee
-:r 05_reports.sql  -- Section: Report 3
+:r 03_report_monthly_hours.sql
 ```
 
 ## Database Schema
 
 ### Core Entities
 
-```
+```text
 Airlines ────< Flights >──── Airports
                  │
                  │ M:N
@@ -218,9 +226,9 @@ The system includes comprehensive sample data covering edge cases:
 |-------------|--------|----------------|
 | Operational redundancy | ✅ | Always On AG architecture |
 | Crew scheduling query | ✅ | `sp_ScheduleCrew` procedure |
-| In-flight crew report | ✅ | Report 1 in 05_reports.sql |
-| Compliance report | ✅ | Report 2 in 05_reports.sql |
-| Payroll report | ✅ | Report 3 in 05_reports.sql |
+| In-flight crew report | ✅ | 01_report_crew_in_flight.sql |
+| Compliance report | ✅ | 02_report_crew_exceeding_limits.sql |
+| Payroll report | ✅ | 03_report_monthly_hours.sql |
 | SSN encryption | ✅ | AES-256 symmetric key |
 | Role-based security | ✅ | 4 roles defined with permissions |
 | FAA regulation compliance | ✅ | Automated validation in functions |
@@ -247,8 +255,8 @@ See [COMPREHENSIVE_DOCUMENTATION.md](COMPREHENSIVE_DOCUMENTATION.md#12-high-avai
 ## Testing
 
 ```sql
--- Run all tests
-:r 04_test_crew_logic.sql
+-- Run complete system (includes all tests)
+:r complete_crew_system.sql
 ```
 
 **Test Coverage:**
@@ -833,23 +841,21 @@ git clone https://github.com/prachwal/odloty.git
 cd odloty
 ```
 
-2. **Execute scripts in order**
+2. **Execute the complete system script**
 
 ```sql
--- Script 1: Reset (if needed)
-:r 00_reset_crew_database.sql
+-- All-in-one deployment (recommended)
+:r complete_crew_system.sql
+```
 
--- Script 2: Create database and schema
-:r 01_create_crew_database.sql
+**Alternative: Run individual report scripts (for testing specific reports)**
 
--- Script 3: Insert sample data
-:r 02_insert_crew_data.sql
-
--- Script 4: Create business logic
-:r 03_crew_logic.sql
-
--- Script 5: Verify reports
-:r 05_reports.sql
+```sql
+-- After running complete_crew_system.sql above, you can run individual reports:
+:r 01_report_crew_in_flight.sql        -- Report 1: Crew currently in flight
+:r 02_report_crew_exceeding_limits.sql -- Report 2: Crew exceeding hour limits  
+:r 03_report_monthly_hours.sql         -- Report 3: Monthly hours worked
+:r 04_report_schedule_crew_for_flight.sql -- Report 4: Available crew for scheduling
 ```
 
 3. **Verify installation**
@@ -981,10 +987,10 @@ ORDER BY F.ActualDeparture DESC;
 
 ### Test Scripts
 
-Execute `04_test_crew_logic.sql` to run comprehensive tests:
+Execute `complete_crew_system.sql` to run comprehensive tests (tests are included in the complete deployment script):
 
 ```sql
-:r 04_test_crew_logic.sql
+:r complete_crew_system.sql
 ```
 
 ### Test Coverage
