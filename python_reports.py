@@ -241,15 +241,30 @@ def report_monthly_hours(pdf):
         pdf.cell(0, 10, "No monthly hours data.", 0, 1)
     conn.close()
 
-def report_schedule_crew_for_flight(pdf, flight_id=1):
+def report_schedule_crew_for_flight(pdf, flight_id=101):
     pdf.set_font('Arial', '', 10)
     pdf.multi_cell(0, 5, "This report suggests available crew members for scheduling on a specific flight, prioritizing those with the most rest time.")
     pdf.ln(2)
     pdf.chapter_title(f"Report 4: Schedule crew for flight (FlightID: {flight_id})")
+
+    # Create test scheduled flight if it doesn't exist
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        IF NOT EXISTS (SELECT 1 FROM Flights WHERE FlightID = 101)
+        BEGIN
+            INSERT INTO Flights (FlightID, AirlineID, FlightNumber, DepartureAirportID, DestinationAirportID, FlightDuration, ScheduledDeparture, ActualDeparture, ActualArrival, IsInternational, StatusID)
+            VALUES (101, 1, 'AA999', 1, 3, 120, DATEADD(DAY, 1, GETDATE()), NULL, NULL, 0, 1);
+        END
+    """)
+    conn.commit()
+
     query = """
-    SELECT TOP 5 c.CrewID, c.FirstName, c.LastName, a.City AS BaseCity,
+    SELECT TOP 5 c.CrewID, c.FirstName + ' ' + c.LastName AS CrewName, a.City AS BaseCity,
            ct.CrewTypeName AS CrewType,
-           dbo.fn_CalculateRestTime(c.CrewID, ?) AS RestTimeHours,
+           CASE WHEN dbo.fn_CalculateRestTime(c.CrewID, ?) >= 0
+                THEN CAST(dbo.fn_CalculateRestTime(c.CrewID, ?) AS VARCHAR(10)) + ' hours'
+                ELSE 'No recent flight' END AS RestTimeStatus,
            sl.SeniorityName AS Seniority
     FROM Crew c
     JOIN Airports a ON c.BaseAirportID = a.AirportID
@@ -258,16 +273,16 @@ def report_schedule_crew_for_flight(pdf, flight_id=1):
     WHERE c.IsActive = 1
     AND NOT EXISTS (SELECT 1 FROM dbo.fn_CheckHourLimits(c.CrewID) WHERE ExceedsLimits = 1)
     AND c.BaseAirportID = (SELECT DepartureAirportID FROM Flights WHERE FlightID = ?)
-    ORDER BY RestTimeHours DESC
+    ORDER BY dbo.fn_CalculateRestTime(c.CrewID, ?) DESC
     """
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute(query, (flight_id, flight_id))
+    cursor.execute(query, (flight_id, flight_id, flight_id, flight_id))
     rows = cursor.fetchall()
-    headers = ['Crew', 'First Name', 'Last Name', 'Base City', 'Crew Type', 'Rest Time Hours', 'Seniority']
-    data = [[row.CrewID, row.FirstName, row.LastName, row.BaseCity, row.CrewType, row.RestTimeHours, row.Seniority] for row in rows]
+    headers = ['Crew ID', 'Crew Name', 'Base City', 'Crew Type', 'Rest Time', 'Seniority']
+    data = [[row.CrewID, row.CrewName, row.BaseCity, row.CrewType, row.RestTimeStatus, row.Seniority] for row in rows]
     if data:
-        col_widths = [12, 17, 17, 22, 15, 17, 12]
+        # Full width table - distribute space evenly across columns
+        page_width = pdf.w - pdf.l_margin - pdf.r_margin
+        col_widths = [page_width * 0.12, page_width * 0.25, page_width * 0.18, page_width * 0.15, page_width * 0.15, page_width * 0.15]
         pdf.add_table(headers, data, col_widths)
     else:
         pdf.cell(0, 10, "No available crew found.", 0, 1)
@@ -350,13 +365,29 @@ def report_monthly_hours_md(md_content):
     add_md_table(md_content, headers, data, description)
     conn.close()
 
-def report_schedule_crew_for_flight_md(md_content, flight_id=1):
+def report_schedule_crew_for_flight_md(md_content, flight_id=101):
     add_md_title(md_content, f"Report 4: Schedule crew for flight (FlightID: {flight_id})")
     description = "This report suggests available crew members for scheduling on a specific flight, prioritizing those with the most rest time."
+    md_content.append(f"{description}\n\n")
+
+    # Create test scheduled flight if it doesn't exist
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        IF NOT EXISTS (SELECT 1 FROM Flights WHERE FlightID = 101)
+        BEGIN
+            INSERT INTO Flights (FlightID, AirlineID, FlightNumber, DepartureAirportID, DestinationAirportID, FlightDuration, ScheduledDeparture, ActualDeparture, ActualArrival, IsInternational, StatusID)
+            VALUES (101, 1, 'AA999', 1, 3, 120, DATEADD(DAY, 1, GETDATE()), NULL, NULL, 0, 1);
+        END
+    """)
+    conn.commit()
+
     query = """
-    SELECT TOP 5 c.CrewID, c.FirstName, c.LastName, a.City AS BaseCity,
+    SELECT TOP 5 c.CrewID, c.FirstName + ' ' + c.LastName AS CrewName, a.City AS BaseCity,
            ct.CrewTypeName AS CrewType,
-           dbo.fn_CalculateRestTime(c.CrewID, ?) AS RestTimeHours,
+           CASE WHEN dbo.fn_CalculateRestTime(c.CrewID, ?) >= 0
+                THEN CAST(dbo.fn_CalculateRestTime(c.CrewID, ?) AS VARCHAR(10)) + ' hours'
+                ELSE 'No recent flight' END AS RestTimeStatus,
            sl.SeniorityName AS Seniority
     FROM Crew c
     JOIN Airports a ON c.BaseAirportID = a.AirportID
@@ -365,15 +396,22 @@ def report_schedule_crew_for_flight_md(md_content, flight_id=1):
     WHERE c.IsActive = 1
     AND NOT EXISTS (SELECT 1 FROM dbo.fn_CheckHourLimits(c.CrewID) WHERE ExceedsLimits = 1)
     AND c.BaseAirportID = (SELECT DepartureAirportID FROM Flights WHERE FlightID = ?)
-    ORDER BY RestTimeHours DESC
+    ORDER BY dbo.fn_CalculateRestTime(c.CrewID, ?) DESC
     """
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute(query, (flight_id, flight_id))
+    cursor.execute(query, (flight_id, flight_id, flight_id, flight_id))
     rows = cursor.fetchall()
-    headers = ['Crew', 'First Name', 'Last Name', 'Base City', 'Crew Type', 'Rest Time Hours', 'Seniority']
-    data = [[row.CrewID, row.FirstName, row.LastName, row.BaseCity, row.CrewType, row.RestTimeHours, row.Seniority] for row in rows]
-    add_md_table(md_content, headers, data, description)
+
+    if rows:
+        headers = ['Crew ID', 'Crew Name', 'Base City', 'Crew Type', 'Rest Time', 'Seniority']
+        data = [[row.CrewID, row.CrewName, row.BaseCity, row.CrewType, row.RestTimeStatus, row.Seniority] for row in rows]
+
+        # Create markdown table with full width styling
+        table_md = tabulate(data, headers=headers, tablefmt='pipe', stralign='left', numalign='left')
+        md_content.append(table_md)
+        md_content.append("\n\n")
+    else:
+        md_content.append("No available crew found.\n\n")
+
     conn.close()
 
 if __name__ == "__main__":
