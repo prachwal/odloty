@@ -1,24 +1,29 @@
 # Crew Scheduling System - Complete Technical Documentation
 
 ## System Overview
+
 This implementation provides a comprehensive airline crew scheduling system that ensures FAA regulatory compliance while optimizing crew utilization across multiple airports with varying connectivity.
 
 ## Database Architecture
 
 ### Schema Design
+
 The database uses a normalized relational schema with the following core entities:
 
 #### Airports
+
 - **Purpose**: Defines operational bases and flight endpoints
 - **Key Fields**: AirportID (PK), City, State, IATACode
 - **Data**: 10 major US airports for comprehensive coverage
 
 #### Airlines
+
 - **Purpose**: Airline operators
 - **Key Fields**: AirlineID (PK), AirlineName, IATACode
 - **Data**: 10 major US carriers
 
 #### Crew
+
 - **Purpose**: Flight personnel with regulatory tracking
 - **Key Fields**:
   - CrewID (PK), FirstName, LastName
@@ -29,6 +34,7 @@ The database uses a normalized relational schema with the following core entitie
 - **Data**: 50 crew members (20 pilots, 30 FAs) across seniority levels
 
 #### Flights
+
 - **Purpose**: Flight operations requiring crew
 - **Key Fields**:
   - FlightID (PK), AirlineID (FK), FlightNumber
@@ -39,11 +45,13 @@ The database uses a normalized relational schema with the following core entitie
 - **Data**: 100 flights with mix of historical and scheduled
 
 #### CrewAssignments
+
 - **Purpose**: Links crew to specific flights
 - **Key Fields**: FlightID (PK), CrewID (PK), RoleID (FK), AssignedAt (DATETIME)
 - **Composite PK**: Ensures one role per crew per flight
 
 ### Supporting Tables
+
 - **CrewTypes**: Pilot (2), Flight Attendant (1)
 - **SeniorityLevels**: Trainee (1), Journeyman (2), Senior (3)
 - **FlightStatuses**: Scheduled (1), InFlight (2), Landed (3)
@@ -52,6 +60,7 @@ The database uses a normalized relational schema with the following core entitie
 ## Business Logic Implementation
 
 ### Dynamic Hour Calculation
+
 Instead of storing static hour counters, the system calculates hours dynamically from flight history:
 
 ```sql
@@ -74,6 +83,7 @@ END
 ### Regulatory Compliance Functions
 
 #### Pilot Limits
+
 ```sql
 CREATE FUNCTION fn_CheckHourLimits (@CrewID INT)
 RETURNS TABLE
@@ -90,6 +100,7 @@ RETURN (
 ```
 
 #### Flight Attendant Limits
+
 ```sql
 CREATE FUNCTION fn_CheckFADutyLimits (@CrewID INT, @FlightID INT)
 RETURNS TABLE
@@ -102,7 +113,9 @@ RETURN (
 ```
 
 ### Scheduling Logic
+
 The `sp_ScheduleCrew` procedure automatically assigns required crew based on:
+
 1. Flight requirements (2 pilots incl. 1 senior, 3 FAs incl. 1 senior)
 2. Base airport matching departure location
 3. Regulatory compliance (no limit violations)
@@ -111,10 +124,12 @@ The `sp_ScheduleCrew` procedure automatically assigns required crew based on:
 ## Security Implementation
 
 ### Data Encryption
+
 - SSN stored as VARBINARY using ENCRYPTBYKEY
 - Symmetric key management for encryption/decryption
 
 ### Role-Based Access
+
 ```sql
 -- Example roles
 CREATE ROLE StationManager;
@@ -129,13 +144,15 @@ GRANT SELECT ON Crew TO HR; -- Limited columns only
 ```
 
 ### Views for Data Access Control
+
 - `vw_AvailableCrew`: Active crew by location
 - `vw_FlightCrew`: Current assignments with decrypted names
 
 ## High Availability Architecture
 
 ### Server Configuration for 99.9999% Uptime
-```
+
+```text
 [Global Load Balancer (DNS-based)]
     |
     +-------------------+
@@ -154,12 +171,14 @@ GRANT SELECT ON Crew TO HR; -- Limited columns only
 ```
 
 ### Redundancy Features
+
 - **Load Balancing**: Distributes requests across web servers
 - **SQL Always On AG**: Automatic failover between primary/secondary
 - **Geographic Distribution**: Multiple data centers
 - **Witness Server**: Ensures quorum for failover decisions
 
 ### Uptime Calculation
+
 - Individual server uptime: 99.9% (8.77 hours downtime/year)
 - 3 web servers in parallel: 99.9999% (26 seconds downtime/year)
 - SQL AG with automatic failover: 99.999% (5 minutes downtime/year)
@@ -168,6 +187,7 @@ GRANT SELECT ON Crew TO HR; -- Limited columns only
 ## Reports Implementation
 
 ### 1. Crew Currently in Flight
+
 ```sql
 SELECT C.FirstName, C.LastName, F.FlightNumber,
        A1.City AS Departure, A2.City AS Destination,
@@ -181,6 +201,7 @@ WHERE F.StatusID = 2 -- InFlight
 ```
 
 ### 2. Crew Exceeding Limits
+
 ```sql
 SELECT C.CrewID, C.FirstName, C.LastName,
        dbo.fn_CalculateCrewHours(C.CrewID, 168) AS Hours7Days,
@@ -190,6 +211,7 @@ WHERE EXISTS (SELECT 1 FROM dbo.fn_CheckHourLimits(C.CrewID) WHERE ExceedsLimits
 ```
 
 ### 3. Monthly Hours Worked
+
 ```sql
 SELECT C.CrewID, C.FirstName, C.LastName,
        YEAR(F.ActualDeparture) AS Year,
@@ -203,6 +225,7 @@ GROUP BY C.CrewID, C.FirstName, C.LastName, YEAR(F.ActualDeparture), MONTH(F.Act
 ```
 
 ### 4. Available Crew for Scheduling
+
 ```sql
 SELECT C.CrewID, C.FirstName, C.LastName, A.City AS BaseCity,
        dbo.fn_CalculateRestTime(C.CrewID, @FlightID) AS RestHours
@@ -217,12 +240,14 @@ ORDER BY RestHours DESC
 ## Testing and Validation
 
 ### Test Coverage
+
 - **Unit Tests**: Function validation with various scenarios
 - **Integration Tests**: End-to-end scheduling workflows
 - **Performance Tests**: Query optimization for large datasets
 - **Regulatory Tests**: Compliance validation across all rules
 
 ### Sample Test Data
+
 - 50 crew members with diverse seniority and locations
 - 100 flights covering domestic/international routes
 - 200 assignments for comprehensive hour calculations
@@ -231,17 +256,20 @@ ORDER BY RestHours DESC
 ## Implementation Notes
 
 ### Key Design Decisions
+
 1. **Dynamic Hours**: Real-time calculation ensures accuracy without update triggers
 2. **Normalized Schema**: Flexible for future requirements
 3. **Security First**: Encryption and role-based access from design phase
 4. **Scalability**: Designed for multiple airports and high transaction volume
 
 ### Performance Optimizations
+
 - Indexes on frequently queried columns (CrewID, FlightID, StatusID)
 - Efficient functions using indexed views where possible
 - Query optimization for real-time scheduling decisions
 
 ### Future Enhancements
+
 - Real-time crew tracking integration
 - Mobile app for crew check-in/out
 - Advanced analytics for workload optimization

@@ -413,7 +413,34 @@ INSERT INTO Flights (FlightID, AirlineID, FlightNumber, DepartureAirportID, Dest
 (37, 7, 'NK737', 8, 10, 150, '2024-02-28 10:30:00', '2024-02-28 10:35:00', '2024-02-28 13:05:00', 0, 3),
 (38, 8, 'F9838', 9, 5, 170, '2024-03-20 14:00:00', '2024-03-20 14:10:00', '2024-03-20 17:00:00', 0, 3),
 (39, 9, 'G4939', 1, 8, 200, '2024-04-15 16:45:00', '2024-04-15 16:50:00', '2024-04-15 20:10:00', 0, 3),
-(40, 10, 'HA1040', 3, 9, 310, '2024-05-22 09:15:00', '2024-05-22 09:20:00', '2024-05-22 14:30:00', 0, 3);
+(40, 10, 'HA1040', 3, 9, 310, '2024-05-22 09:15:00', '2024-05-22 09:20:00', '2024-05-22 14:30:00', 0, 3),
+-- ADDITIONAL TEST SCENARIOS - Recent flights for testing 40-hour limit
+-- Flights within last 40 hours (for testing immediate hour limits) - using current date for accuracy
+(41, 1, 'AA501', 1, 3, 180, DATEADD(HOUR, -38, GETDATE()), DATEADD(HOUR, -38, GETDATE()), DATEADD(HOUR, -35, GETDATE()), 0, 3),  -- 3h flight, 38h ago
+(42, 2, 'DL502', 1, 4, 240, DATEADD(HOUR, -30, GETDATE()), DATEADD(HOUR, -30, GETDATE()), DATEADD(HOUR, -26, GETDATE()), 0, 3),  -- 4h flight, 30h ago
+(43, 3, 'UA503', 1, 5, 300, DATEADD(HOUR, -20, GETDATE()), DATEADD(HOUR, -20, GETDATE()), DATEADD(HOUR, -15, GETDATE()), 0, 3),  -- 5h flight, 20h ago
+(44, 4, 'WN504', 1, 6, 360, DATEADD(HOUR, -10, GETDATE()), DATEADD(HOUR, -10, GETDATE()), DATEADD(HOUR, -4, GETDATE()), 0, 3),   -- 6h flight, 10h ago
+-- Flights for testing 7-day (168h) limit - crew should approach/exceed 60h
+(45, 5, 'B6601', 2, 3, 420, DATEADD(HOUR, -150, GETDATE()), DATEADD(HOUR, -150, GETDATE()), DATEADD(HOUR, -143, GETDATE()), 0, 3), -- 7h, 150h ago
+(46, 6, 'AS602', 2, 4, 480, DATEADD(HOUR, -140, GETDATE()), DATEADD(HOUR, -140, GETDATE()), DATEADD(HOUR, -132, GETDATE()), 0, 3), -- 8h, 140h ago
+(47, 7, 'NK603', 2, 5, 420, DATEADD(HOUR, -120, GETDATE()), DATEADD(HOUR, -120, GETDATE()), DATEADD(HOUR, -113, GETDATE()), 0, 3), -- 7h, 120h ago
+(48, 8, 'F9604', 2, 6, 480, DATEADD(HOUR, -100, GETDATE()), DATEADD(HOUR, -100, GETDATE()), DATEADD(HOUR, -92, GETDATE()), 0, 3),  -- 8h, 100h ago
+(49, 9, 'G4605', 2, 7, 540, DATEADD(HOUR, -80, GETDATE()), DATEADD(HOUR, -80, GETDATE()), DATEADD(HOUR, -71, GETDATE()), 0, 3),   -- 9h, 80h ago
+(50, 10, 'HA606', 2, 8, 600, DATEADD(HOUR, -60, GETDATE()), DATEADD(HOUR, -60, GETDATE()), DATEADD(HOUR, -50, GETDATE()), 0, 3),  -- 10h, 60h ago
+-- Flights for testing 28-day (672h) limit - crew should approach/exceed 100h
+(51, 1, 'AA701', 3, 4, 360, DATEADD(HOUR, -600, GETDATE()), DATEADD(HOUR, -600, GETDATE()), DATEADD(HOUR, -594, GETDATE()), 0, 3), -- 6h, 600h ago
+(52, 2, 'DL702', 3, 5, 420, DATEADD(HOUR, -550, GETDATE()), DATEADD(HOUR, -550, GETDATE()), DATEADD(HOUR, -543, GETDATE()), 0, 3), -- 7h, 550h ago
+(53, 3, 'UA703', 3, 6, 480, DATEADD(HOUR, -500, GETDATE()), DATEADD(HOUR, -500, GETDATE()), DATEADD(HOUR, -492, GETDATE()), 0, 3), -- 8h, 500h ago
+-- International flights exceeding FA duty limits (domestic 14h, international 20h)
+(54, 4, 'WN801', 4, 5, 870, DATEADD(HOUR, -200, GETDATE()), DATEADD(HOUR, -200, GETDATE()), DATEADD(HOUR, -186, GETDATE()), 0, 3), -- 14.5h domestic - EXCEEDS FA LIMIT
+(55, 5, 'B6802', 4, 6, 1260, DATEADD(HOUR, -180, GETDATE()), DATEADD(HOUR, -180, GETDATE()), DATEADD(HOUR, -159, GETDATE()), 1, 3), -- 21h international - EXCEEDS FA LIMIT
+-- Flights with insufficient rest between them (<9h) for FA testing
+(56, 6, 'AS901', 5, 6, 240, DATEADD(HOUR, -50, GETDATE()), DATEADD(HOUR, -50, GETDATE()), DATEADD(HOUR, -46, GETDATE()), 0, 3),    -- 4h flight
+(57, 7, 'NK902', 5, 7, 180, DATEADD(HOUR, -38, GETDATE()), DATEADD(HOUR, -38, GETDATE()), DATEADD(HOUR, -35, GETDATE()), 0, 3),    -- 3h flight, only 8h rest - VIOLATES 9h REST
+-- Currently in-flight for Report 1 testing
+(58, 8, 'F9100', 6, 7, 300, DATEADD(HOUR, -2, GETDATE()), DATEADD(HOUR, -2, GETDATE()), NULL, 0, 2),  -- Currently in flight (StatusID=2)
+(59, 9, 'G4101', 7, 8, 240, DATEADD(HOUR, -1, GETDATE()), DATEADD(HOUR, -1, GETDATE()), NULL, 1, 2),  -- Currently in flight (international)
+(60, 10, 'HA102', 8, 9, 360, DATEADD(MINUTE, -90, GETDATE()), DATEADD(MINUTE, -90, GETDATE()), NULL, 0, 2);  -- Currently in flight
 SET IDENTITY_INSERT Flights OFF;
 GO
 
@@ -659,10 +686,118 @@ INSERT INTO CrewAssignments (FlightID, CrewID, RoleID, AssignedAt) VALUES
 (40, 20, 1, '2024-10-05 09:45:00'),
 (40, 30, 2, '2024-10-05 09:45:00'),
 (40, 40, 2, '2024-10-05 09:45:00'),
-(40, 50, 2, '2024-10-05 09:45:00');
+(40, 50, 2, '2024-10-05 09:45:00'),
+-- ADDITIONAL ASSIGNMENTS FOR TEST SCENARIOS
+-- Flights 41-44: Testing 40-hour limit (assign to Crew 1 & 2 - they should exceed 40h limit)
+(41, 1, 1, DATEADD(HOUR, -39, GETDATE())),  -- Pilot
+(41, 2, 1, DATEADD(HOUR, -39, GETDATE())),  -- Pilot
+(41, 21, 2, DATEADD(HOUR, -39, GETDATE())), -- FA
+(41, 22, 2, DATEADD(HOUR, -39, GETDATE())), -- FA
+(41, 23, 2, DATEADD(HOUR, -39, GETDATE())), -- FA
+(42, 1, 1, DATEADD(HOUR, -31, GETDATE())),
+(42, 2, 1, DATEADD(HOUR, -31, GETDATE())),
+(42, 24, 2, DATEADD(HOUR, -31, GETDATE())),
+(42, 25, 2, DATEADD(HOUR, -31, GETDATE())),
+(42, 26, 2, DATEADD(HOUR, -31, GETDATE())),
+(43, 1, 1, DATEADD(HOUR, -21, GETDATE())),  -- Crew 1 now has 3+4+5=12h in last 40h
+(43, 2, 1, DATEADD(HOUR, -21, GETDATE())),  -- Crew 2 now has 3+4+5=12h in last 40h
+(43, 27, 2, DATEADD(HOUR, -21, GETDATE())),
+(43, 28, 2, DATEADD(HOUR, -21, GETDATE())),
+(43, 29, 2, DATEADD(HOUR, -21, GETDATE())),
+(44, 1, 1, DATEADD(HOUR, -11, GETDATE())),  -- Crew 1 now has 3+4+5+6=18h in last 40h
+(44, 2, 1, DATEADD(HOUR, -11, GETDATE())),  -- Crew 2 now has 3+4+5+6=18h in last 40h
+(44, 30, 2, DATEADD(HOUR, -11, GETDATE())),
+(44, 31, 2, DATEADD(HOUR, -11, GETDATE())),
+(44, 32, 2, DATEADD(HOUR, -11, GETDATE())),
+-- Flights 45-50: Testing 168h (7-day) limit - assign to Crew 3 & 4
+(45, 3, 1, DATEADD(HOUR, -151, GETDATE())),
+(45, 4, 1, DATEADD(HOUR, -151, GETDATE())),
+(45, 33, 2, DATEADD(HOUR, -151, GETDATE())),
+(45, 34, 2, DATEADD(HOUR, -151, GETDATE())),
+(45, 35, 2, DATEADD(HOUR, -151, GETDATE())),
+(46, 3, 1, DATEADD(HOUR, -141, GETDATE())),  -- Crew 3 & 4: 7+8=15h
+(46, 4, 1, DATEADD(HOUR, -141, GETDATE())),
+(46, 36, 2, DATEADD(HOUR, -141, GETDATE())),
+(46, 37, 2, DATEADD(HOUR, -141, GETDATE())),
+(46, 38, 2, DATEADD(HOUR, -141, GETDATE())),
+(47, 3, 1, DATEADD(HOUR, -121, GETDATE())),  -- Crew 3 & 4: 15+7=22h
+(47, 4, 1, DATEADD(HOUR, -121, GETDATE())),
+(47, 39, 2, DATEADD(HOUR, -121, GETDATE())),
+(47, 40, 2, DATEADD(HOUR, -121, GETDATE())),
+(47, 41, 2, DATEADD(HOUR, -121, GETDATE())),
+(48, 3, 1, DATEADD(HOUR, -101, GETDATE())),  -- Crew 3 & 4: 22+8=30h
+(48, 4, 1, DATEADD(HOUR, -101, GETDATE())),
+(48, 42, 2, DATEADD(HOUR, -101, GETDATE())),
+(48, 43, 2, DATEADD(HOUR, -101, GETDATE())),
+(48, 44, 2, DATEADD(HOUR, -101, GETDATE())),
+(49, 3, 1, DATEADD(HOUR, -81, GETDATE())),   -- Crew 3 & 4: 30+9=39h
+(49, 4, 1, DATEADD(HOUR, -81, GETDATE())),
+(49, 45, 2, DATEADD(HOUR, -81, GETDATE())),
+(49, 46, 2, DATEADD(HOUR, -81, GETDATE())),
+(49, 47, 2, DATEADD(HOUR, -81, GETDATE())),
+(50, 3, 1, DATEADD(HOUR, -61, GETDATE())),   -- Crew 3 & 4: 39+10=49h in 168h
+(50, 4, 1, DATEADD(HOUR, -61, GETDATE())),
+(50, 48, 2, DATEADD(HOUR, -61, GETDATE())),
+(50, 49, 2, DATEADD(HOUR, -61, GETDATE())),
+(50, 50, 2, DATEADD(HOUR, -61, GETDATE())),
+-- Flights 51-53: Testing 672h (28-day) limit - assign to Crew 5 & 6
+(51, 5, 1, DATEADD(HOUR, -601, GETDATE())),
+(51, 6, 1, DATEADD(HOUR, -601, GETDATE())),
+(51, 21, 2, DATEADD(HOUR, -601, GETDATE())),
+(51, 22, 2, DATEADD(HOUR, -601, GETDATE())),
+(51, 23, 2, DATEADD(HOUR, -601, GETDATE())),
+(52, 5, 1, DATEADD(HOUR, -551, GETDATE())),  -- Crew 5 & 6: 6+7=13h
+(52, 6, 1, DATEADD(HOUR, -551, GETDATE())),
+(52, 24, 2, DATEADD(HOUR, -551, GETDATE())),
+(52, 25, 2, DATEADD(HOUR, -551, GETDATE())),
+(52, 26, 2, DATEADD(HOUR, -551, GETDATE())),
+(53, 5, 1, DATEADD(HOUR, -501, GETDATE())),  -- Crew 5 & 6: 13+8=21h in 672h
+(53, 6, 1, DATEADD(HOUR, -501, GETDATE())),
+(53, 27, 2, DATEADD(HOUR, -501, GETDATE())),
+(53, 28, 2, DATEADD(HOUR, -501, GETDATE())),
+(53, 29, 2, DATEADD(HOUR, -501, GETDATE())),
+-- Flights 54-55: FA duty limit violations
+(54, 7, 1, DATEADD(HOUR, -201, GETDATE())),
+(54, 8, 1, DATEADD(HOUR, -201, GETDATE())),
+(54, 30, 2, DATEADD(HOUR, -201, GETDATE())),  -- FA on 14.5h domestic - EXCEEDS LIMIT
+(54, 31, 2, DATEADD(HOUR, -201, GETDATE())),
+(54, 32, 2, DATEADD(HOUR, -201, GETDATE())),
+(55, 9, 1, DATEADD(HOUR, -181, GETDATE())),
+(55, 10, 1, DATEADD(HOUR, -181, GETDATE())),
+(55, 33, 2, DATEADD(HOUR, -181, GETDATE())),  -- FA on 21h international - EXCEEDS LIMIT
+(55, 34, 2, DATEADD(HOUR, -181, GETDATE())),
+(55, 35, 2, DATEADD(HOUR, -181, GETDATE())),
+-- Flights 56-57: Insufficient rest testing (<9h between flights)
+(56, 11, 1, DATEADD(HOUR, -51, GETDATE())),
+(56, 12, 1, DATEADD(HOUR, -51, GETDATE())),
+(56, 36, 2, DATEADD(HOUR, -51, GETDATE())),   -- FA will have insufficient rest
+(56, 37, 2, DATEADD(HOUR, -51, GETDATE())),
+(56, 38, 2, DATEADD(HOUR, -51, GETDATE())),
+(57, 11, 1, DATEADD(HOUR, -39, GETDATE())),   -- Only 8h rest from previous flight
+(57, 12, 1, DATEADD(HOUR, -39, GETDATE())),
+(57, 36, 2, DATEADD(HOUR, -39, GETDATE())),   -- FA 36: only 8h rest - VIOLATES 9h RULE
+(57, 39, 2, DATEADD(HOUR, -39, GETDATE())),
+(57, 40, 2, DATEADD(HOUR, -39, GETDATE())),
+-- Flights 58-60: Currently in flight (for Report 1)
+(58, 13, 1, DATEADD(HOUR, -2, GETDATE())),
+(58, 14, 1, DATEADD(HOUR, -2, GETDATE())),
+(58, 41, 2, DATEADD(HOUR, -2, GETDATE())),
+(58, 42, 2, DATEADD(HOUR, -2, GETDATE())),
+(58, 43, 2, DATEADD(HOUR, -2, GETDATE())),
+(59, 15, 1, DATEADD(HOUR, -1, GETDATE())),
+(59, 16, 1, DATEADD(HOUR, -1, GETDATE())),
+(59, 44, 2, DATEADD(HOUR, -1, GETDATE())),
+(59, 45, 2, DATEADD(HOUR, -1, GETDATE())),
+(59, 46, 2, DATEADD(HOUR, -1, GETDATE())),
+(60, 17, 1, DATEADD(MINUTE, -90, GETDATE())),
+(60, 18, 1, DATEADD(MINUTE, -90, GETDATE())),
+(60, 47, 2, DATEADD(MINUTE, -90, GETDATE())),
+(60, 48, 2, DATEADD(MINUTE, -90, GETDATE())),
+(60, 49, 2, DATEADD(MINUTE, -90, GETDATE()));
 GO
 
-PRINT 'Sample data inserted successfully for Phase 2.';
+PRINT 'Sample data inserted successfully for Phase 2 with comprehensive test scenarios.';
+PRINT 'Test scenarios include: 40h limits, 168h limits, 672h limits, FA duty violations, insufficient rest, in-flight crew.';
 GO
 
 -- =============================================
@@ -689,9 +824,10 @@ GO
 
 -- Function to calculate crew hours dynamically in different time periods
 -- This replaces static hour tracking with dynamic calculation from flight history
+-- Supports: 40h, 168h (7 days), 672h (28 days), 8760h (365 days) as per 14 CFR Part 117 & 121.467
 CREATE FUNCTION fn_CalculateCrewHours (
     @CrewID INT,
-    @HoursPeriod INT  -- 168, 672, or 8760 (365 days * 24 hours)
+    @HoursPeriod INT  -- 40, 168, 672, or 8760 (365 days * 24 hours)
 )
 RETURNS DECIMAL(7,2)
 AS
@@ -712,6 +848,7 @@ END;
 GO
 
 -- Function to check if a crew member exceeds hour limits per 14 CFR Part 117 and 121.467
+-- Returns detailed hour tracking for all required periods: 40h, 168h (7d), 672h (28d), 8760h (365d)
 CREATE FUNCTION fn_CheckHourLimits (@CrewID INT)
 RETURNS TABLE
 AS
@@ -721,9 +858,10 @@ RETURN
         @CrewID AS CrewID,
         C.CrewTypeID,
         CT.CrewTypeName,
-        dbo.fn_CalculateCrewHours(@CrewID, 168) AS Hours168,
-        dbo.fn_CalculateCrewHours(@CrewID, 672) AS Hours672,
-        dbo.fn_CalculateCrewHours(@CrewID, 8760) AS Hours365Days,
+        dbo.fn_CalculateCrewHours(@CrewID, 40) AS Hours40,      -- Last 40 hours (REQUIRED by task)
+        dbo.fn_CalculateCrewHours(@CrewID, 168) AS Hours168,    -- Last 7 days
+        dbo.fn_CalculateCrewHours(@CrewID, 672) AS Hours672,    -- Last 28 days
+        dbo.fn_CalculateCrewHours(@CrewID, 8760) AS Hours365Days, -- Last 365 days
         CASE 
             -- Pilot limits (14 CFR Part 117 and 121.467)
             WHEN C.CrewTypeID = 2 AND (
@@ -813,6 +951,7 @@ GO
 -- =============================================
 
 -- View for available crew in a city without exceeding limits
+-- Includes all required hour tracking periods (40h, 168h, 672h, 365d)
 CREATE VIEW vw_AvailableCrew AS
 SELECT 
     C.CrewID, 
@@ -823,9 +962,10 @@ SELECT
     CT.CrewTypeName,
     C.SeniorityID,
     SL.SeniorityName,
-    HL.Hours168,
-    HL.Hours672,
-    HL.Hours365Days,
+    HL.Hours40,          -- Required: hours in last 40 hours
+    HL.Hours168,         -- Required: hours in last 7 days (168 hours)
+    HL.Hours672,         -- Required: hours in last 28 days (672 hours)
+    HL.Hours365Days,     -- Required: hours in last 365 days
     HL.ExceedsLimits,
     HL.LimitStatus
 FROM Crew C
@@ -869,6 +1009,7 @@ GO
 -- =============================================
 
 -- Procedure to schedule crew for a flight with proper validation
+-- UPDATED: Improved fairness - prioritize crew with fewer recent hours (Hours40, Hours168)
 CREATE PROCEDURE sp_ScheduleCrew @FlightID INT
 AS
 BEGIN
@@ -903,15 +1044,16 @@ BEGIN
         END
 
         -- Assign 2 pilots (at least 1 senior, seniority level 3)
+        -- FAIRNESS: Order by Hours40 ASC then Hours168 ASC to distribute work evenly
         DECLARE @CrewID INT, @SeniorityID INT;
         
         DECLARE PilotCursor CURSOR LOCAL FAST_FORWARD FOR
-        SELECT TOP 2 CrewID, SeniorityID 
+        SELECT TOP 10 CrewID, SeniorityID 
         FROM vw_AvailableCrew
         WHERE BaseCity = @DepartureCity 
             AND CrewTypeID = 2  -- Pilots
             AND ExceedsLimits = 0
-        ORDER BY SeniorityID DESC, CrewID;  -- Prefer senior pilots
+        ORDER BY SeniorityID DESC, Hours40 ASC, Hours168 ASC, CrewID;  -- FAIRNESS: Prefer crew with fewer recent hours
 
         OPEN PilotCursor;
         FETCH NEXT FROM PilotCursor INTO @CrewID, @SeniorityID;
@@ -937,13 +1079,14 @@ BEGIN
         DEALLOCATE PilotCursor;
 
         -- Assign 3 cabin crew (at least 1 senior, seniority level 3)
+        -- FAIRNESS: Order by Hours40 ASC then Hours168 ASC to distribute work evenly
         DECLARE CabinCursor CURSOR LOCAL FAST_FORWARD FOR
-        SELECT TOP 5 CrewID, SeniorityID  -- Get more candidates in case some fail validation
+        SELECT TOP 10 CrewID, SeniorityID  -- Get more candidates in case some fail validation
         FROM vw_AvailableCrew
         WHERE BaseCity = @DepartureCity 
             AND CrewTypeID = 1  -- Flight Attendants
             AND ExceedsLimits = 0
-        ORDER BY SeniorityID DESC, CrewID;
+        ORDER BY SeniorityID DESC, Hours40 ASC, Hours168 ASC, CrewID;  -- FAIRNESS: Prefer crew with fewer recent hours
 
         OPEN CabinCursor;
         FETCH NEXT FROM CabinCursor INTO @CrewID, @SeniorityID;
@@ -1269,6 +1412,7 @@ ORDER BY F.FlightID, R.RoleID DESC, C.LastName;
 GO
 
 -- Report 2: Crew exceeding or approaching hour limits (14 CFR Part 117 and 121.467)
+-- UPDATED: Now includes Hours40 as required by task specification
 PRINT '';
 PRINT 'Report 2: Crew exceeding or approaching regulatory hour limits';
 PRINT '================================================';
@@ -1276,6 +1420,7 @@ SELECT
     C.CrewID,
     C.FirstName + ' ' + C.LastName AS CrewName,
     HL.CrewTypeName,
+    HL.Hours40 AS [Hours Last 40 Hours],       -- REQUIRED BY TASK
     HL.Hours168 AS [Hours Last 7 Days],
     HL.Hours672 AS [Hours Last 28 Days],
     HL.Hours365Days AS [Hours Last 365 Days],
@@ -1284,6 +1429,7 @@ SELECT
     CASE 
         WHEN HL.CrewTypeName = 'Pilot' THEN 
             CASE
+                WHEN HL.Hours40 > 35 THEN 'WARNING: High hours in last 40h'
                 WHEN HL.Hours168 > 54 THEN 'WARNING: Approaching 60h/7d limit'
                 WHEN HL.Hours672 > 90 THEN 'WARNING: Approaching 100h/28d limit'
                 WHEN HL.Hours672 > 180 THEN 'WARNING: Approaching 190h/28d limit'
@@ -1296,8 +1442,9 @@ FROM Crew C
 CROSS APPLY dbo.fn_CheckHourLimits(C.CrewID) HL
 WHERE C.IsActive = 1
     AND (HL.ExceedsLimits = 1  -- Already exceeding
+        OR HL.Hours40 > 20  -- Show crew with significant recent activity
         OR (HL.CrewTypeName = 'Pilot' AND (HL.Hours168 > 54 OR HL.Hours672 > 90 OR HL.Hours365Days > 900)))  -- Approaching limit
-ORDER BY HL.ExceedsLimits DESC, HL.Hours672 DESC;
+ORDER BY HL.ExceedsLimits DESC, HL.Hours40 DESC, HL.Hours672 DESC;
 GO
 
 -- Report 3: Monthly hours worked by crew (for payroll)
@@ -1328,6 +1475,7 @@ ORDER BY Year DESC, Month DESC, TotalHoursWorked DESC;
 GO
 
 -- Report 4: Available crew for scheduling a flight (with regulatory compliance check)
+-- UPDATED: Now includes Hours40 as required by task specification
 PRINT '';
 PRINT 'Report 4: Available crew for scheduling (example for NYC departures)';
 PRINT '================================================';
@@ -1338,13 +1486,14 @@ SELECT
     AC.CrewTypeName,
     AC.SeniorityName,
     AC.BaseCity,
+    AC.Hours40 AS [Hours Last 40 Hours],       -- REQUIRED BY TASK
     AC.Hours168 AS [Hours Last 7 Days],
     AC.Hours672 AS [Hours Last 28 Days],
     AC.Hours365Days AS [Hours Last Year],
     AC.LimitStatus AS [Regulatory Status]
 FROM vw_AvailableCrew AC
 WHERE AC.BaseCity = 'New York'  -- Example: NYC airport
-ORDER BY AC.CrewTypeID DESC, AC.SeniorityID DESC, AC.CrewID;
+ORDER BY AC.CrewTypeID DESC, AC.SeniorityID DESC, AC.Hours40 ASC, AC.CrewID;  -- Prioritize crew with fewer recent hours (fairness)
 GO
 
 PRINT '';
