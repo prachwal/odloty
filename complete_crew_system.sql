@@ -1,32 +1,29 @@
 -- =============================================
 -- Complete Crew Scheduling System SQL Script
--- This script combines all SQL files (00-05) into one comprehensive script
--- Run this script to set up the complete Crew Scheduling System
+-- This script combines all SQL files (01-05) into one comprehensive script
+-- Run this script to set up the complete Crew Scheduling System from scratch
+-- =============================================
+-- 
+-- USAGE:
+--   Execute this script in SQL Server Management Studio or sqlcmd
+--   This will create CrewSchedulingDB database and populate it with sample data
+--
+-- PREREQUISITES:
+--   - SQL Server 2019 or later
+--   - Administrative privileges on SQL Server instance
+--   - Sufficient disk space for database creation
+--
+-- SCRIPT ORDER:
+--   1. Drop and recreate CrewSchedulingDB database
+--   2. Create all tables, indexes, and security objects
+--   3. Insert sample data (50 crew, 10 airports, 10 airlines, 100 flights)
+--   4. Create business logic (functions, procedures, views)
+--   5. Run validation tests
+--   6. Execute reports
 -- =============================================
 
--- =============================================
--- Phase 0: Reset Database
--- =============================================
-
-USE CrewSchedulingDB;
-GO
-
--- Delete existing data in reverse dependency order
-DELETE FROM CrewAssignments;
-DELETE FROM Flights;
-DELETE FROM Crew;
-DELETE FROM Airlines;
-DELETE FROM Airports;
-
--- Reset IDENTITY columns
-DBCC CHECKIDENT ('Airports', RESEED, 0);
-DBCC CHECKIDENT ('Airlines', RESEED, 0);
-DBCC CHECKIDENT ('Crew', RESEED, 0);
-DBCC CHECKIDENT ('Flights', RESEED, 0);
-DBCC CHECKIDENT ('CrewAssignments', RESEED, 0);
-GO
-
-PRINT 'CrewSchedulingDB data cleared successfully.';
+PRINT 'Starting Crew Scheduling System Setup...';
+PRINT 'Timestamp: ' + CONVERT(NVARCHAR(30), GETDATE(), 120);
 GO
 
 -- =============================================

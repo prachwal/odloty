@@ -3,7 +3,24 @@
 -- Description: Reset CrewSchedulingDB by deleting all data
 -- This script deletes all data from tables in reverse dependency order.
 -- Does not drop tables or database, only clears data.
+-- 
+-- USAGE:
+--   Execute after creating database to clear sample data
+--   Safe to run multiple times (idempotent)
+-- 
+-- NOTE: Database must exist before running this script
 -- =============================================
+
+USE master;
+GO
+
+-- Check if database exists
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'CrewSchedulingDB')
+BEGIN
+    PRINT 'CrewSchedulingDB does not exist. Please run 01_create_crew_database.sql first.';
+    RAISERROR('Database CrewSchedulingDB not found', 16, 1);
+END
+GO
 
 USE CrewSchedulingDB;
 GO
