@@ -1,4 +1,283 @@
-# Crew Scheduling System - Complete Documentation
+# Crew Scheduling System
+
+[![SQL Server](https://img.shields.io/badge/SQL%20Server-2019%2B-red)](https://www.microsoft.com/sql-server)
+[![License](https://img.shields.io/badge/License-Educational-blue)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-green)](https://github.com/prachwal/odloty)
+
+## Overview
+
+The Crew Scheduling System is a production-ready SQL Server database solution for managing airline crew assignments while ensuring full compliance with FAA regulations (14 CFR Part 117 and 121.467). This system provides intelligent crew scheduling, real-time regulatory compliance monitoring, and comprehensive reporting capabilities.
+
+**Key Features:**
+- ✅ Automated crew scheduling with regulatory validation
+- ✅ Real-time flight time limitation monitoring  
+- ✅ Dynamic hour calculation from flight history
+- ✅ Encrypted storage of sensitive data (SSN)
+- ✅ Comprehensive reporting for operations, compliance, and payroll
+- ✅ High availability architecture (99.9999% uptime design)
+
+## Quick Start
+
+### Prerequisites
+- SQL Server 2019 or later
+- SQL Server Management Studio (SSMS) or sqlcmd
+- Administrative privileges on SQL Server instance
+
+### Installation
+
+**Option 1: All-in-One Script (Recommended)**
+```sql
+-- Execute in SSMS or via sqlcmd
+:r complete_crew_system.sql
+```
+
+**Option 2: Step-by-Step**
+```sql
+-- 1. Create database and schema
+:r 01_create_crew_database.sql
+
+-- 2. Insert sample data
+:r 02_insert_crew_data.sql
+
+-- 3. Create business logic
+:r 03_crew_logic.sql
+
+-- 4. (Optional) Run tests
+:r 04_test_crew_logic.sql
+
+-- 5. (Optional) View reports
+:r 05_reports.sql
+```
+
+### Verification
+
+```sql
+-- Check installation
+USE CrewSchedulingDB;
+
+-- View available crew
+SELECT * FROM vw_AvailableCrew;
+
+-- Schedule crew for a flight
+EXEC sp_ScheduleCrew @FlightID = 86;
+```
+
+## Documentation
+
+📘 **[Comprehensive Documentation](COMPREHENSIVE_DOCUMENTATION.md)** - Complete technical guide covering:
+- Database architecture and design decisions
+- Data structures and relationships
+- Business logic implementation
+- Regulatory compliance details
+- Security implementation
+- Installation and configuration
+- Usage guide with examples
+- Reports and analytics
+- Testing strategy
+- High availability architecture
+- Troubleshooting guide
+
+## Project Structure
+
+```
+odloty/
+├── 00_reset_crew_database.sql          # Clear database data
+├── 01_create_crew_database.sql         # Create database schema
+├── 02_insert_crew_data.sql             # Insert sample data (50 crew, 100 flights)
+├── 03_crew_logic.sql                   # Business logic (functions, procedures, views)
+├── 04_test_crew_logic.sql              # Test scripts
+├── 05_reports.sql                      # Report queries
+├── complete_crew_system.sql            # All-in-one deployment script
+├── COMPREHENSIVE_DOCUMENTATION.md      # Complete technical documentation
+├── README.md                           # This file (project overview)
+└── zadanie.md                          # Original requirements (in Polish)
+```
+
+## Key Capabilities
+
+### 1. Intelligent Crew Scheduling
+
+```sql
+-- Automatically assign qualified crew to flights
+EXEC sp_ScheduleCrew @FlightID = 86;
+```
+
+The system:
+- Validates regulatory compliance (hour limits, rest requirements)
+- Ensures crew composition requirements (2 pilots + 3 FAs, including seniors)
+- Matches crew to departure airport
+- Prevents double-booking
+
+### 2. Regulatory Compliance Monitoring
+
+```sql
+-- Check if crew member exceeds FAA limits
+SELECT * FROM dbo.fn_CheckHourLimits(1);
+
+-- View all crew approaching limits
+SELECT * FROM vw_AvailableCrew
+WHERE Hours168 > 54 OR Hours672 > 90;
+```
+
+**Pilot Limits (14 CFR 121.467):**
+- ≤ 60 hours in 7 days
+- ≤ 100 hours in 28 days
+- ≤ 1,000 hours in 365 days
+
+**Flight Attendant Limits (14 CFR Part 117):**
+- ≤ 14 hours duty time (domestic)
+- ≤ 20 hours duty time (international)
+- ≥ 9 hours rest between flights
+
+### 3. Operational Reports
+
+**Report 1: Crew Currently in Flight**
+```sql
+-- Real-time tracking of active crews
+SELECT * FROM vw_FlightCrew WHERE StatusID = 2;
+```
+
+**Report 2: Compliance Alert Report**
+```sql
+-- Crew exceeding or approaching hour limits
+:r 05_reports.sql  -- Section: Report 2
+```
+
+**Report 3: Payroll Report**
+```sql
+-- Monthly hours worked per employee
+:r 05_reports.sql  -- Section: Report 3
+```
+
+## Database Schema
+
+### Core Entities
+
+```
+Airlines ────< Flights >──── Airports
+                 │
+                 │ M:N
+                 │
+          CrewAssignments
+                 │
+                 │
+                Crew ──── Airports (Base)
+```
+
+### Key Tables
+
+- **Crew** (50 members): Pilots and flight attendants with encrypted SSN
+- **Flights** (100 records): Historical and scheduled flights
+- **CrewAssignments** (425 records): Crew-to-flight mappings
+- **Airlines** (10): Major US carriers
+- **Airports** (10): Major US hubs
+
+### Business Logic
+
+- **4 Functions**: Hour calculation, limit checking, rest time calculation
+- **2 Procedures**: Crew scheduling, flight status updates
+- **2 Views**: Available crew, flight crew assignments
+
+## Sample Data
+
+The system includes comprehensive sample data covering edge cases:
+
+- **50 Crew Members**: 20 pilots + 30 flight attendants
+- **100 Flights**: 85 landed, 10 scheduled, 5 in-flight
+- **425 Assignments**: Historical crew-flight mappings
+- **Edge Cases**: 
+  - Crews approaching hour limits
+  - International flights testing FA duty time
+  - Insufficient rest scenarios
+  - Multiple seniority levels at each airport
+
+## Technology Stack
+
+- **Database**: Microsoft SQL Server 2019+
+- **Language**: T-SQL (Transact-SQL)
+- **Encryption**: AES-256 symmetric key for SSN
+- **Architecture**: Multi-tier with Always On Availability Groups
+- **High Availability**: 99.9999% uptime design
+
+## Requirements Compliance
+
+✅ **All requirements from zadanie.md met:**
+
+| Requirement | Status | Implementation |
+|-------------|--------|----------------|
+| Operational redundancy | ✅ | Always On AG architecture |
+| Crew scheduling query | ✅ | `sp_ScheduleCrew` procedure |
+| In-flight crew report | ✅ | Report 1 in 05_reports.sql |
+| Compliance report | ✅ | Report 2 in 05_reports.sql |
+| Payroll report | ✅ | Report 3 in 05_reports.sql |
+| SSN encryption | ✅ | AES-256 symmetric key |
+| Role-based security | ✅ | 4 roles defined with permissions |
+| FAA regulation compliance | ✅ | Automated validation in functions |
+
+## Security
+
+- **Data Encryption**: SSN fields encrypted at rest using SQL Server symmetric keys
+- **Role-Based Access**: 4 roles (StationManager, FlightOps, Compliance, HR)
+- **Audit Ready**: All operations logged via SQL Server audit
+- **TDE Support**: Compatible with Transparent Data Encryption
+
+## High Availability
+
+**Architecture for 99.9999% Uptime:**
+- SQL Server Always On Availability Groups
+- Automatic failover to synchronous secondary (< 10s RTO)
+- Asynchronous DR replica in separate datacenter
+- Load-balanced application servers (N+1 redundancy)
+- Full/differential/log backups (15-minute RPO)
+
+See [COMPREHENSIVE_DOCUMENTATION.md](COMPREHENSIVE_DOCUMENTATION.md#12-high-availability-architecture) for details.
+
+## Testing
+
+```sql
+-- Run all tests
+:r 04_test_crew_logic.sql
+```
+
+**Test Coverage:**
+- Unit tests for all functions
+- Integration tests for scheduling workflow
+- Performance tests (sp_ScheduleCrew < 2s target)
+- Edge case validation
+
+## Troubleshooting
+
+Common issues and solutions:
+
+| Issue | Solution |
+|-------|----------|
+| "Insufficient qualified crew" | Check `vw_AvailableCrew` for departure airport |
+| Encryption key not found | Run `OPEN SYMMETRIC KEY CrewSSNKey DECRYPTION BY CERTIFICATE CrewSSNCert;` |
+| Database in single-user mode | Run `ALTER DATABASE CrewSchedulingDB SET MULTI_USER;` |
+
+See [COMPREHENSIVE_DOCUMENTATION.md](COMPREHENSIVE_DOCUMENTATION.md#13-troubleshooting) for complete troubleshooting guide.
+
+## Contributing
+
+This is an educational project for technical audition purposes. For questions or suggestions:
+1. Open an issue in the repository
+2. Contact the development team
+
+## License
+
+Provided as-is for educational and technical audition purposes.
+
+## References
+
+- [14 CFR Part 117 - Flight and Duty Limitations](https://www.ecfr.gov/current/title-14/chapter-I/subchapter-G/part-117)
+- [14 CFR 121.467 - Flight Time Limitations](https://www.ecfr.gov/current/title-14/section-121.467)
+- [SQL Server Always On](https://docs.microsoft.com/en-us/sql/database-engine/availability-groups/windows/overview-of-always-on-availability-groups-sql-server)
+
+---
+
+**Version**: 2.0  
+**Last Updated**: November 2025  
+**Status**: Production Ready
 
 ## Table of Contents
 1. [Project Overview](#project-overview)
