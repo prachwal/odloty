@@ -154,8 +154,8 @@ def report_crew_in_flight(pdf):
     query = """
     SELECT ca.CrewID, c.FirstName, c.LastName, f.FlightID, f.FlightNumber,
            dep.City AS DepartureCity, dest.City AS DestinationCity,
-           f.ScheduledDeparture AS DepartureTime,
-           DATEADD(MINUTE, f.FlightDuration, f.ScheduledDeparture) AS ArrivalTime,
+           f.ActualDeparture AS DepartureTime,
+           DATEADD(MINUTE, f.FlightDuration, f.ActualDeparture) AS ArrivalTime,
            r.RoleName AS Role, sl.SeniorityName AS Seniority
     FROM CrewAssignments ca
     JOIN Crew c ON ca.CrewID = c.CrewID
@@ -187,22 +187,23 @@ def report_crew_exceeding_limits(pdf):
     pdf.chapter_title("Report 2: Crew exceeding hour limits")
     query = """
     SELECT c.CrewID, c.FirstName, c.LastName,
-           (c.HoursLast168 + c.HoursLast168 + c.HoursLast672) AS TotalHours,
-           CASE WHEN (c.CrewTypeID = 2 AND (c.HoursLast168 > 100 OR c.HoursLast168 > 60 OR c.HoursLast672 > 190)) OR (c.CrewTypeID = 1 AND (c.HoursLast168 > 14 OR c.HoursLast672 > 20)) THEN 'Exceeds' ELSE 'Within Limits' END AS WithinLimits,
+           HL.Hours168, HL.Hours672, HL.Hours365Days,
+           HL.LimitStatus AS WithinLimits,
            sl.SeniorityName AS Seniority
     FROM Crew c
+    CROSS APPLY dbo.fn_CheckHourLimits(c.CrewID) HL
     JOIN SeniorityLevels sl ON c.SeniorityID = sl.SeniorityID
-    WHERE (c.CrewTypeID = 2 AND (c.HoursLast168 > 100 OR c.HoursLast168 > 60 OR c.HoursLast672 > 190)) OR (c.CrewTypeID = 1 AND (c.HoursLast168 > 14 OR c.HoursLast672 > 20))
+    WHERE HL.ExceedsLimits = 1
     ORDER BY c.CrewID
     """
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(query)
     rows = cursor.fetchall()
-    headers = ['Crew', 'First Name', 'Last Name', 'Total Hours', 'Within Limits', 'Seniority']
-    data = [[row.CrewID, row.FirstName, row.LastName, row.TotalHours, row.WithinLimits, row.Seniority] for row in rows]
+    headers = ['Crew', 'First Name', 'Last Name', 'Hours 168h', 'Hours 672h', 'Hours 365d', 'Limit Status', 'Seniority']
+    data = [[row.CrewID, row.FirstName, row.LastName, row.Hours168, row.Hours672, row.Hours365Days, row.WithinLimits, row.Seniority] for row in rows]
     if data:
-        col_widths = [12, 17, 17, 17, 22, 12]
+        col_widths = [12, 17, 17, 17, 17, 17, 22, 12]
         pdf.add_table(headers, data, col_widths)
     else:
         pdf.cell(0, 10, "No crew exceeding hour limits.", 0, 1)
@@ -245,21 +246,21 @@ def report_schedule_crew_for_flight(pdf, flight_id=92):
     pdf.multi_cell(0, 5, "This report suggests available crew members for scheduling on a specific flight, prioritizing those with the most rest time.")
     pdf.ln(2)
     pdf.chapter_title(f"Report 4: Schedule crew for flight (FlightID: {flight_id})")
-    query = f"""
+    query = """
     SELECT TOP 5 c.CrewID, c.FirstName, c.LastName, a.City AS BaseCity,
-           dbo.fn_CalculateRestTime(c.CrewID, {flight_id}) AS RestTimeHours,
+           dbo.fn_CalculateRestTime(c.CrewID, ?) AS RestTimeHours,
            sl.SeniorityName AS Seniority
     FROM Crew c
     JOIN Airports a ON c.BaseAirportID = a.AirportID
     JOIN SeniorityLevels sl ON c.SeniorityID = sl.SeniorityID
     WHERE c.IsActive = 1
     AND NOT EXISTS (SELECT 1 FROM dbo.fn_CheckHourLimits(c.CrewID) WHERE ExceedsLimits = 1)
-    AND c.BaseAirportID = (SELECT DepartureAirportID FROM Flights WHERE FlightID = {flight_id})
+    AND c.BaseAirportID = (SELECT DepartureAirportID FROM Flights WHERE FlightID = ?)
     ORDER BY RestTimeHours DESC
     """
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute(query)
+    cursor.execute(query, (flight_id, flight_id))
     rows = cursor.fetchall()
     headers = ['Crew', 'First Name', 'Last Name', 'Base City', 'Rest Time Hours', 'Seniority']
     data = [[row.CrewID, row.FirstName, row.LastName, row.BaseCity, row.RestTimeHours, row.Seniority] for row in rows]
@@ -276,8 +277,8 @@ def report_crew_in_flight_md(md_content):
     query = """
     SELECT ca.CrewID, c.FirstName, c.LastName, f.FlightID, f.FlightNumber,
            dep.City AS DepartureCity, dest.City AS DestinationCity,
-           f.ScheduledDeparture AS DepartureTime,
-           DATEADD(MINUTE, f.FlightDuration, f.ScheduledDeparture) AS ArrivalTime,
+           f.ActualDeparture AS DepartureTime,
+           DATEADD(MINUTE, f.FlightDuration, f.ActualDeparture) AS ArrivalTime,
            r.RoleName AS Role, sl.SeniorityName AS Seniority
     FROM CrewAssignments ca
     JOIN Crew c ON ca.CrewID = c.CrewID
@@ -303,20 +304,21 @@ def report_crew_exceeding_limits_md(md_content):
     description = "This report lists crew members who have exceeded or are at risk of exceeding their work hour limitations as per regulatory requirements."
     query = """
     SELECT c.CrewID, c.FirstName, c.LastName,
-           (c.HoursLast168 + c.HoursLast168 + c.HoursLast672) AS TotalHours,
-           CASE WHEN (c.CrewTypeID = 2 AND (c.HoursLast168 > 100 OR c.HoursLast168 > 60 OR c.HoursLast672 > 190)) OR (c.CrewTypeID = 1 AND (c.HoursLast168 > 14 OR c.HoursLast672 > 20)) THEN 'Exceeds' ELSE 'Within Limits' END AS WithinLimits,
+           HL.Hours168, HL.Hours672, HL.Hours365Days,
+           HL.LimitStatus AS WithinLimits,
            sl.SeniorityName AS Seniority
     FROM Crew c
+    CROSS APPLY dbo.fn_CheckHourLimits(c.CrewID) HL
     JOIN SeniorityLevels sl ON c.SeniorityID = sl.SeniorityID
-    WHERE (c.CrewTypeID = 2 AND (c.HoursLast168 > 100 OR c.HoursLast168 > 60 OR c.HoursLast672 > 190)) OR (c.CrewTypeID = 1 AND (c.HoursLast168 > 14 OR c.HoursLast672 > 20))
+    WHERE HL.ExceedsLimits = 1
     ORDER BY c.CrewID
     """
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(query)
     rows = cursor.fetchall()
-    headers = ['Crew', 'First Name', 'Last Name', 'Total Hours', 'Within Limits', 'Seniority']
-    data = [[row.CrewID, row.FirstName, row.LastName, row.TotalHours, row.WithinLimits, row.Seniority] for row in rows]
+    headers = ['Crew', 'First Name', 'Last Name', 'Hours 168h', 'Hours 672h', 'Hours 365d', 'Limit Status', 'Seniority']
+    data = [[row.CrewID, row.FirstName, row.LastName, row.Hours168, row.Hours672, row.Hours365Days, row.WithinLimits, row.Seniority] for row in rows]
     add_md_table(md_content, headers, data, description)
     conn.close()
 
@@ -349,21 +351,21 @@ def report_monthly_hours_md(md_content):
 def report_schedule_crew_for_flight_md(md_content, flight_id=92):
     add_md_title(md_content, f"Report 4: Schedule crew for flight (FlightID: {flight_id})")
     description = "This report suggests available crew members for scheduling on a specific flight, prioritizing those with the most rest time."
-    query = f"""
+    query = """
     SELECT TOP 5 c.CrewID, c.FirstName, c.LastName, a.City AS BaseCity,
-           dbo.fn_CalculateRestTime(c.CrewID, {flight_id}) AS RestTimeHours,
+           dbo.fn_CalculateRestTime(c.CrewID, ?) AS RestTimeHours,
            sl.SeniorityName AS Seniority
     FROM Crew c
     JOIN Airports a ON c.BaseAirportID = a.AirportID
     JOIN SeniorityLevels sl ON c.SeniorityID = sl.SeniorityID
     WHERE c.IsActive = 1
     AND NOT EXISTS (SELECT 1 FROM dbo.fn_CheckHourLimits(c.CrewID) WHERE ExceedsLimits = 1)
-    AND c.BaseAirportID = (SELECT DepartureAirportID FROM Flights WHERE FlightID = {flight_id})
+    AND c.BaseAirportID = (SELECT DepartureAirportID FROM Flights WHERE FlightID = ?)
     ORDER BY RestTimeHours DESC
     """
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute(query)
+    cursor.execute(query, (flight_id, flight_id))
     rows = cursor.fetchall()
     headers = ['Crew', 'First Name', 'Last Name', 'Base City', 'Rest Time Hours', 'Seniority']
     data = [[row.CrewID, row.FirstName, row.LastName, row.BaseCity, row.RestTimeHours, row.Seniority] for row in rows]
