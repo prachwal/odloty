@@ -63,12 +63,14 @@ This system solves the complex problem of airline crew scheduling across multipl
 ### 2.1 Original Requirements (from zadanie.md)
 
 #### Crew Requirements Per Flight
+
 - **Pilots**: 2 minimum, with at least 1 senior (captain) - SeniorityID = 3
 - **Cabin Crew**: 3 flight attendants minimum, with at least 1 senior
 
 #### Tracked Metadata
 
 **Per Crew Member:**
+
 - Full name (first and last)
 - Social Security Number (encrypted)
 - Hours flown in last 168 hours (7 days)
@@ -79,6 +81,7 @@ This system solves the complex problem of airline crew scheduling across multipl
 - Base airport location
 
 **Per Flight:**
+
 - Airline
 - Flight number
 - Departure city/airport
@@ -100,19 +103,25 @@ This system solves the complex problem of airline crew scheduling across multipl
 ### 2.2 Design Decisions
 
 #### Dynamic Hour Calculation
+
 Instead of storing static hour counts that require trigger maintenance, hours are calculated dynamically from flight history using `fn_CalculateCrewHours`. This ensures:
+
 - Always accurate calculations
 - Proper time window handling
 - No data inconsistency issues
 - Simplified maintenance
 
 #### International Flight Flag
+
 The `IsInternational` flag enables proper enforcement of FA duty time limits:
+
 - Domestic: Maximum 14 consecutive hours
 - International: Maximum 20 consecutive hours
 
 #### Actual Arrival Tracking
+
 The `ActualArrival` field enables accurate calculation of:
+
 - Duty time for flight attendants
 - Rest time between flights
 - Total time away from base
@@ -132,7 +141,7 @@ Compatibility:    150 (SQL Server 2019)
 
 ### 3.2 Entity Relationship Diagram
 
-```
+```text
 ┌─────────────┐           ┌─────────────┐           ┌─────────────┐
 │  Airlines   │           │   Flights   │           │  Airports   │
 │─────────────│           │─────────────│           │─────────────│
@@ -165,6 +174,7 @@ Compatibility:    150 (SQL Server 2019)
 ### 3.3 Table Inventory
 
 #### Core Tables (5)
+
 1. **Airlines**: Airline company information
 2. **Airports**: Airport/city locations  
 3. **Crew**: Crew member personal and professional information
@@ -172,6 +182,7 @@ Compatibility:    150 (SQL Server 2019)
 5. **CrewAssignments**: Junction table linking crew to flights
 
 #### Lookup Tables (4)
+
 6. **CrewTypes**: 1=Flight Attendant, 2=Pilot
 7. **SeniorityLevels**: 1=Trainee, 2=Journeyman, 3=Senior
 8. **FlightStatuses**: 1=Scheduled, 2=InFlight, 3=Landed
@@ -184,6 +195,7 @@ Compatibility:    150 (SQL Server 2019)
 ### 4.1 Table Definitions
 
 #### 4.1.1 Airlines
+
 ```sql
 CREATE TABLE Airlines (
     AirlineID   INT IDENTITY(1,1) PRIMARY KEY,
@@ -197,6 +209,7 @@ CREATE TABLE Airlines (
 **Constraints**: UNIQUE on IATACode to prevent duplicates
 
 #### 4.1.2 Airports
+
 ```sql
 CREATE TABLE Airports (
     AirportID INT IDENTITY(1,1) PRIMARY KEY,
@@ -211,6 +224,7 @@ CREATE TABLE Airports (
 **Business Rule**: Crew can only be scheduled from their base airport
 
 #### 4.1.3 Crew
+
 ```sql
 CREATE TABLE Crew (
     CrewID         INT IDENTITY(1,1) PRIMARY KEY,
@@ -235,10 +249,12 @@ CREATE TABLE Crew (
 **Note**: HoursLast* fields are legacy - system now uses dynamic calculation via `fn_CalculateCrewHours`
 
 **Indexes:**
+
 - `IX_Crew_BaseAirportID` - Fast lookups by base location
 - `IX_Crew_CrewTypeID` - Filter by pilot vs FA
 
 #### 4.1.4 Flights
+
 ```sql
 CREATE TABLE Flights (
     FlightID            INT IDENTITY(1,1) PRIMARY KEY,
@@ -260,17 +276,20 @@ CREATE TABLE Flights (
 ```
 
 **Purpose**: Flight schedule and operational tracking  
-**Time Tracking**: 
+**Time Tracking**:
+
 - `ScheduledDeparture`: Planning purposes
 - `ActualDeparture`: Set when status changes to InFlight
 - `ActualArrival`: Set when status changes to Landed
 
 **Indexes:**
+
 - `IX_Flights_DepartureAirportID` - Crew scheduling queries
 - `IX_Flights_StatusID` - Filter by flight status
 - `IX_Flights_ScheduledDeparture` - Time-based queries
 
 #### 4.1.5 CrewAssignments
+
 ```sql
 CREATE TABLE CrewAssignments (
     AssignmentID INT IDENTITY(1,1) PRIMARY KEY,
@@ -288,6 +307,7 @@ CREATE TABLE CrewAssignments (
 **Audit Trail**: `AssignedAt` timestamp for scheduling history
 
 **Indexes:**
+
 - `IX_CrewAssignments_FlightID` - Get all crew for a flight
 - `IX_CrewAssignments_CrewID` - Get all flights for crew member
 - `IX_CrewAssignments_RoleID` - Filter by role
@@ -321,6 +341,7 @@ CREATE TABLE CrewAssignments (
 #### 5.1.1 fn_CalculateCrewHours
 
 **Signature:**
+
 ```sql
 CREATE FUNCTION fn_CalculateCrewHours (
     @CrewID INT,
@@ -332,11 +353,13 @@ RETURNS DECIMAL(7,2)
 **Purpose**: Dynamically calculates total flight hours for a crew member within a specified time window.
 
 **Logic:**
+
 1. Calculate cutoff datetime: `DATEADD(HOUR, -@HoursPeriod, GETDATE())`
 2. Sum FlightDuration from completed/in-flight assignments after cutoff
 3. Return total hours as decimal
 
 **Example Usage:**
+
 ```sql
 -- Get hours in last 7 days for crew 1
 SELECT dbo.fn_CalculateCrewHours(1, 168) AS Hours7Days;
@@ -349,14 +372,15 @@ SELECT dbo.fn_CalculateCrewHours(10, 8760) AS Hours365Days;
 ```
 
 **Performance Considerations:**
+
 - Uses indexed `ActualDeparture` column
 - Filters by `StatusID IN (2,3)` for completed flights only
 - Optimized with covering indexes on CrewAssignments
 
-
 #### 5.1.2 fn_CheckHourLimits
 
 **Signature:**
+
 ```sql
 CREATE FUNCTION fn_CheckHourLimits (@CrewID INT)
 RETURNS TABLE
@@ -379,6 +403,7 @@ RETURN (
 **Purpose**: Checks if a pilot exceeds any FAA hour limitations per 14 CFR Part 117 and 121.467.
 
 **Returns:** Table with columns:
+
 - `Hours168`: Hours in last 168 hours (7 days)
 - `Hours672`: Hours in last 672 hours (28 days)
 - `Hours365Days`: Hours in last 365 days
@@ -386,12 +411,14 @@ RETURN (
 - `LimitStatus`: Human-readable description of status
 
 **Pilot Limits Checked:**
+
 - ≤ 60 hours in 168 consecutive hours (7 days)
 - ≤ 100 hours in 672 consecutive hours (28 days)
 - ≤ 190 hours in 672 consecutive hours (alternate limit)
 - ≤ 1,000 hours in 365 consecutive days (1 year)
 
 **Example Usage:**
+
 ```sql
 -- Check limits for crew 1
 SELECT * FROM dbo.fn_CheckHourLimits(1);
@@ -406,6 +433,7 @@ WHERE C.CrewTypeID = 2 AND HL.ExceedsLimits = 1;
 #### 5.1.3 fn_CalculateRestTime
 
 **Signature:**
+
 ```sql
 CREATE FUNCTION fn_CalculateRestTime (
     @CrewID INT,
@@ -417,17 +445,20 @@ RETURNS INT  -- Hours of rest, or -1 if no previous flight
 **Purpose**: Calculates hours of rest between last completed flight and a proposed new flight.
 
 **Logic:**
+
 1. Find last flight end time (ActualArrival or calculated from duration)
 2. Get proposed flight start time (ScheduledDeparture)
 3. Calculate DATEDIFF in hours
 4. Return -1 if no previous flight exists
 
 **Business Rules:**
+
 - Flight attendants require ≥ 9 consecutive hours rest between flights
 - Used by `sp_ScheduleCrew` for validation
 - Used by `fn_CheckFADutyLimits` for compliance
 
 **Example Usage:**
+
 ```sql
 -- Check rest time for crew 21 before flight 86
 SELECT dbo.fn_CalculateRestTime(21, 86) AS RestHours;
@@ -443,6 +474,7 @@ WHERE C.CrewTypeID = 1  -- FAs only
 #### 5.1.4 fn_CheckFADutyLimits
 
 **Signature:**
+
 ```sql
 CREATE FUNCTION fn_CheckFADutyLimits (
     @CrewID INT,
@@ -454,17 +486,20 @@ RETURNS TABLE
 **Purpose**: Checks if a flight attendant would exceed duty time limits or rest requirements for a specific flight.
 
 **Returns:** Table with columns:
+
 - `FlightHours`: Duration of flight in hours
 - `ExceedsDutyLimit`: 1 if flight exceeds 14h (domestic) or 20h (international)
 - `RestHoursSinceLastFlight`: Hours of rest since last flight
 - `InsufficientRest`: 1 if less than 9 hours rest
 
 **Duty Time Limits:**
+
 - Domestic flights: ≤ 14 consecutive hours
 - International flights: ≤ 20 consecutive hours
 - Rest requirement: ≥ 9 consecutive hours between flights
 
 **Example Usage:**
+
 ```sql
 -- Check if crew 21 can work flight 86
 SELECT * FROM dbo.fn_CheckFADutyLimits(21, 86);
@@ -483,6 +518,7 @@ WHERE C.CrewTypeID = 1
 #### 5.2.1 sp_ScheduleCrew
 
 **Signature:**
+
 ```sql
 CREATE PROCEDURE sp_ScheduleCrew @FlightID INT
 ```
@@ -490,6 +526,7 @@ CREATE PROCEDURE sp_ScheduleCrew @FlightID INT
 **Purpose**: Intelligently assigns crew to a scheduled flight with full regulatory validation.
 
 **Algorithm:**
+
 1. **Validate Flight**
    - Verify flight exists and is in Scheduled status (StatusID = 1)
    - Check that crew is not already assigned
@@ -524,11 +561,13 @@ CREATE PROCEDURE sp_ScheduleCrew @FlightID INT
    - If any validation fails: ROLLBACK with error message
 
 **Error Handling:**
+
 - `RAISERROR` for missing flight, wrong status, or insufficient crew
 - Full transaction support with automatic rollback
 - Detailed error messages for troubleshooting
 
 **Example Usage:**
+
 ```sql
 -- Schedule crew for flight 86
 EXEC sp_ScheduleCrew @FlightID = 86;
@@ -540,6 +579,7 @@ SELECT * FROM vw_FlightCrew WHERE FlightID = 86;
 ```
 
 **Best Practices:**
+
 - Always check `vw_AvailableCrew` before scheduling
 - Run during off-peak hours for better performance
 - Review error messages if scheduling fails
@@ -547,6 +587,7 @@ SELECT * FROM vw_FlightCrew WHERE FlightID = 86;
 #### 5.2.2 sp_UpdateFlightStatus
 
 **Signature:**
+
 ```sql
 CREATE PROCEDURE sp_UpdateFlightStatus 
     @FlightID INT, 
@@ -556,6 +597,7 @@ CREATE PROCEDURE sp_UpdateFlightStatus
 **Purpose**: Updates flight status with proper timestamp tracking and validation.
 
 **Logic:**
+
 1. **Validate Status**
    - Map status name to ID (1=Scheduled, 2=InFlight, 3=Landed)
    - Verify flight exists
@@ -570,6 +612,7 @@ CREATE PROCEDURE sp_UpdateFlightStatus
    - Handle errors with RAISERROR
 
 **Example Usage:**
+
 ```sql
 -- Flight takes off
 EXEC sp_UpdateFlightStatus @FlightID = 86, @NewStatus = 'InFlight';
@@ -590,6 +633,7 @@ WHERE FlightID = 86;
 **Purpose**: Shows only active crew members who are within regulatory hour limits.
 
 **Columns:**
+
 - CrewID, FirstName, LastName
 - BaseCity (from Airports join)
 - CrewTypeName, SeniorityName
@@ -598,10 +642,12 @@ WHERE FlightID = 86;
 - LimitStatus (descriptive text)
 
 **Filter Criteria:**
+
 - `IsActive = 1`
 - `ExceedsLimits = 0` (from fn_CheckHourLimits)
 
 **Usage:**
+
 ```sql
 -- View all available crew at NYC
 SELECT * FROM vw_AvailableCrew
@@ -618,6 +664,7 @@ WHERE CrewTypeName = 'Pilot' AND SeniorityName = 'Senior';
 **Purpose**: Shows crew assignments with full flight and crew details.
 
 **Columns:**
+
 - FlightID, FlightNumber, ScheduledDeparture, ActualDeparture
 - DepartureCity, DestinationCity
 - CrewID, FirstName, LastName
@@ -625,6 +672,7 @@ WHERE CrewTypeName = 'Pilot' AND SeniorityName = 'Senior';
 - FlightHours (duration)
 
 **Usage:**
+
 ```sql
 -- View crew for a specific flight
 SELECT * FROM vw_FlightCrew
@@ -683,6 +731,7 @@ The Federal Aviation Administration (FAA) regulates flight and duty time limitat
 ### 6.3 Compliance Examples
 
 #### Example 1: Pilot Approaching 7-Day Limit
+
 ```sql
 -- Scenario: Crew 1 has flown 58 hours in last 7 days
 SELECT * FROM dbo.fn_CheckHourLimits(1);
@@ -696,6 +745,7 @@ SELECT * FROM dbo.fn_CheckHourLimits(1);
 ```
 
 #### Example 2: FA with Insufficient Rest
+
 ```sql
 -- Scenario: Crew 21 last flight landed 6 hours ago
 SELECT dbo.fn_CalculateRestTime(21, 86) AS RestHours;
@@ -716,6 +766,7 @@ SELECT * FROM dbo.fn_CheckFADutyLimits(21, 86);
 #### Symmetric Key Encryption for SSN
 
 **Setup:**
+
 ```sql
 -- Create master key (password should be changed in production)
 CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'StrongPassword!123';
@@ -731,6 +782,7 @@ ENCRYPTION BY CERTIFICATE CrewSSNCert;
 ```
 
 **Encryption:**
+
 ```sql
 -- Open key before encrypting
 OPEN SYMMETRIC KEY CrewSSNKey DECRYPTION BY CERTIFICATE CrewSSNCert;
@@ -744,6 +796,7 @@ CLOSE SYMMETRIC KEY CrewSSNKey;
 ```
 
 **Decryption:**
+
 ```sql
 -- Open key before decrypting
 OPEN SYMMETRIC KEY CrewSSNKey DECRYPTION BY CERTIFICATE CrewSSNCert;
@@ -866,6 +919,7 @@ sqlcmd -S localhost -U sa -P 'YourPassword' -i complete_crew_system.sql -o insta
 ### 8.3 Post-Installation Steps
 
 #### 1. Verify Database Creation
+
 ```sql
 USE master;
 SELECT name, collation_name, recovery_model_desc 
@@ -874,6 +928,7 @@ WHERE name = 'CrewSchedulingDB';
 ```
 
 #### 2. Verify Table Creation
+
 ```sql
 USE CrewSchedulingDB;
 SELECT TABLE_NAME 
@@ -884,6 +939,7 @@ ORDER BY TABLE_NAME;
 ```
 
 #### 3. Verify Data Population
+
 ```sql
 SELECT 'Airports' AS TableName, COUNT(*) AS RowCount FROM Airports
 UNION ALL SELECT 'Airlines', COUNT(*) FROM Airlines
@@ -900,6 +956,7 @@ UNION ALL SELECT 'CrewAssignments', COUNT(*) FROM CrewAssignments;
 ```
 
 #### 4. Verify Functions
+
 ```sql
 SELECT name, type_desc 
 FROM sys.objects 
@@ -910,6 +967,7 @@ ORDER BY name;
 ```
 
 #### 5. Verify Stored Procedures
+
 ```sql
 SELECT name, type_desc 
 FROM sys.objects 
@@ -920,6 +978,7 @@ ORDER BY name;
 ```
 
 #### 6. Verify Views
+
 ```sql
 SELECT name 
 FROM sys.views 
@@ -929,6 +988,7 @@ ORDER BY name;
 ```
 
 #### 7. Test Basic Functionality
+
 ```sql
 -- Test hour calculation
 SELECT dbo.fn_CalculateCrewHours(1, 168) AS Hours7Days;
@@ -1164,6 +1224,7 @@ ORDER BY HL.ExceedsLimits DESC, HL.Hours672 DESC;
 **Purpose**: Show all crew members on planes currently in the air.
 
 **SQL Query:**
+
 ```sql
 SELECT 
     C.CrewID,
@@ -1191,6 +1252,7 @@ ORDER BY F.FlightID, R.RoleID DESC, C.LastName;
 ```
 
 **Sample Output:**
+
 | CrewID | CrewName | CrewType | Seniority | FlightNumber | Departure | Destination | EstArrival | Role |
 |--------|----------|----------|-----------|--------------|-----------|-------------|-----------|------|
 | 1 | John Doe | Pilot | Senior | AS696 | New York | Los Angeles | 2025-11-09 12:05 | Pilot |
@@ -1198,18 +1260,19 @@ ORDER BY F.FlightID, R.RoleID DESC, C.LastName;
 | 36 | Kayla Santiago | Flight Attendant | Senior | AS696 | New York | Los Angeles | 2025-11-09 12:05 | Cabin |
 
 **Use Cases:**
+
 - Operations dashboard
 - Real-time tracking
 - Emergency response coordination
 
 ---
 
-
 ### 10.2 Report 2: Crew Exceeding or Approaching Hour Limits
 
 **Purpose**: Identify crew members who have exceeded or are in danger of exceeding work hour limitations per 14 CFR Part 117 and 121.467.
 
 **SQL Query:**
+
 ```sql
 SELECT 
     C.CrewID,
@@ -1240,11 +1303,13 @@ ORDER BY HL.ExceedsLimits DESC, HL.Hours672 DESC;
 ```
 
 **Alert Thresholds:**
+
 - **Critical (Red)**: ExceedsLimits = 1 (already over limit)
 - **Warning (Yellow)**: Within 10% of limit (54h/7d, 90h/28d, 900h/yr)
 - **Normal (Green)**: Below warning threshold
 
 **Use Cases:**
+
 - Compliance monitoring
 - Crew scheduling decisions
 - Regulatory audit preparation
@@ -1254,6 +1319,7 @@ ORDER BY HL.ExceedsLimits DESC, HL.Hours672 DESC;
 **Purpose**: List the number of hours worked per month on a per-employee basis to support payroll processing.
 
 **SQL Query:**
+
 ```sql
 SELECT 
     C.CrewID,
@@ -1279,12 +1345,14 @@ ORDER BY Year DESC, Month DESC, TotalHoursWorked DESC;
 ```
 
 **Sample Output:**
+
 | CrewID | CrewName | Year | Month | FlightsWorked | TotalHours | AvgHours |
 |--------|----------|------|-------|---------------|------------|----------|
 | 1 | John Doe | 2025 | 11 | 7 | 25.5 | 3.64 |
 | 16 | Laura Ramirez | 2025 | 11 | 7 | 25.5 | 3.64 |
 
 **Use Cases:**
+
 - Payroll processing
 - Overtime calculation
 - Workload analysis
@@ -1294,6 +1362,7 @@ ORDER BY Year DESC, Month DESC, TotalHoursWorked DESC;
 **Purpose**: Show crew available at a specific airport who are within regulatory limits and ready to be scheduled.
 
 **SQL Query:**
+
 ```sql
 -- Example for NYC departures
 SELECT 
@@ -1312,6 +1381,7 @@ ORDER BY AC.CrewTypeID DESC, AC.SeniorityID DESC, AC.CrewID;
 ```
 
 **Use Cases:**
+
 - Pre-scheduling crew availability check
 - Staffing level monitoring
 - Crew transfer decisions
@@ -1325,6 +1395,7 @@ ORDER BY AC.CrewTypeID DESC, AC.SeniorityID DESC, AC.CrewID;
 The system includes comprehensive tests in `04_test_crew_logic.sql`:
 
 #### Unit Tests
+
 - `fn_CalculateCrewHours`: Various time periods (168h, 672h, 8760h)
 - `fn_CheckHourLimits`: Pilots exceeding each limit type
 - `fn_CheckFADutyLimits`: Domestic vs international flights
@@ -1333,12 +1404,14 @@ The system includes comprehensive tests in `04_test_crew_logic.sql`:
 - `vw_FlightCrew`: Data accuracy
 
 #### Integration Tests
+
 - End-to-end scheduling workflow
 - Status update propagation
 - Hour calculation after assignments
 - Concurrent scheduling attempts
 
 #### Performance Tests
+
 - `sp_ScheduleCrew` execution time (target: <2 seconds)
 - View query performance with JOINs
 - Hour calculation with large datasets
@@ -1390,7 +1463,7 @@ The sample data includes edge cases:
 
 ### 12.2 Multi-Tier Architecture
 
-```
+```text
                   ┌─────────────────────────┐
                   │  Global Load Balancer   │
                   │    (DNS-based Routing)  │
@@ -1436,6 +1509,7 @@ The sample data includes edge cases:
 ### 12.3 Component Details
 
 #### Load Balancer Layer
+
 - **Type**: Hardware (F5, Citrix) or Cloud (AWS ALB, Azure LB)
 - **Health Checks**: HTTP endpoint `/health` on app servers
 - **Algorithms**: Round-robin or least connections
@@ -1443,6 +1517,7 @@ The sample data includes edge cases:
 - **Failover Time**: < 5 seconds
 
 #### Application Server Layer
+
 - **Redundancy**: N+1 (minimum 2 active, 1 standby)
 - **State**: Stateless design (no session affinity)
 - **Connection Pooling**: Min 10, Max 100 connections per server
@@ -1450,7 +1525,8 @@ The sample data includes edge cases:
 - **Circuit Breaker**: Open after 5 consecutive failures
 
 #### Database Layer (SQL Server Always On)
-- **Primary Replica**: 
+
+- **Primary Replica**:
   - Handles all write operations
   - Synchronous commit to secondary
   - Automatic failover enabled
@@ -1468,16 +1544,19 @@ The sample data includes edge cases:
 ### 12.4 Disaster Recovery
 
 #### Recovery Point Objective (RPO)
+
 - **Synchronous Secondary**: 0 seconds (no data loss)
 - **Asynchronous Secondary**: < 60 seconds
 - **Backup Recovery**: 15 minutes (last transaction log backup)
 
 #### Recovery Time Objective (RTO)
+
 - **Automatic Failover**: < 10 seconds
 - **Manual Failover**: < 2 minutes
 - **Backup Restore**: < 30 minutes
 
 #### Backup Strategy
+
 ```sql
 -- Full backup (daily at 2 AM)
 BACKUP DATABASE CrewSchedulingDB
@@ -1496,6 +1575,7 @@ WITH COMPRESSION;
 ```
 
 **Backup Retention:**
+
 - Full: 30 days
 - Differential: 7 days
 - Transaction Log: 3 days
@@ -1504,6 +1584,7 @@ WITH COMPRESSION;
 ### 12.5 Monitoring and Alerting
 
 #### Health Metrics
+
 - Database online status
 - Primary replica availability
 - Replication lag (should be < 5 seconds)
@@ -1512,11 +1593,13 @@ WITH COMPRESSION;
 - Disk space (alert at 80% full)
 
 #### Alert Thresholds
+
 - **Critical**: Database offline, failover occurred, replication lag > 60s
 - **Warning**: Replication lag > 10s, disk space > 80%, slow queries > 5s
 - **Info**: Backup completed, scheduled maintenance
 
 #### Monitoring Tools
+
 - SQL Server Management Studio (SSMS)
 - SQL Server Agent alerts
 - Azure Monitor (if using Azure SQL)
@@ -1525,16 +1608,19 @@ WITH COMPRESSION;
 ### 12.6 Scalability
 
 #### Vertical Scaling
+
 - Enterprise-class servers: 96+ cores, 512GB+ RAM
 - NVMe SSD storage for database files
 - 10Gbps+ network interfaces
 
 #### Horizontal Scaling
+
 - Read-only routing to secondary replicas for reports
 - Sharding by airport region if needed (future enhancement)
 - Microservices architecture for application tier
 
 #### Database Optimization
+
 - Indexed views for complex reports
 - Columnstore indexes for historical data (future enhancement)
 - Table partitioning by month for Flights and CrewAssignments (future)
@@ -1550,17 +1636,20 @@ WITH COMPRESSION;
 #### Issue 1: sp_ScheduleCrew Fails with "Insufficient qualified crew"
 
 **Symptoms:**
+
 ```
 Msg 50000, Level 16, State 1
 Insufficient pilots available (need 2).
 ```
 
 **Causes:**
+
 - Not enough pilots at departure airport
 - Pilots exceeding hour limits
 - Insufficient rest time for available pilots
 
 **Solutions:**
+
 ```sql
 -- Check available pilots at departure airport
 SELECT * FROM vw_AvailableCrew
@@ -1585,14 +1674,17 @@ WHERE C.BaseAirportID = @DepartureAirportID
 #### Issue 2: Crew Shows as Exceeding Limits Incorrectly
 
 **Symptoms:**
+
 - `fn_CheckHourLimits` returns `ExceedsLimits = 1` but crew hasn't flown much recently
 
 **Causes:**
+
 - Incorrect ActualDeparture or ActualArrival times
 - Missing ActualArrival causing incorrect duration calculation
 - System clock issues
 
 **Solutions:**
+
 ```sql
 -- Verify flight history for crew member
 SELECT 
@@ -1623,17 +1715,20 @@ WHERE ActualDeparture IS NOT NULL
 #### Issue 3: Encryption Key Not Found
 
 **Symptoms:**
+
 ```
 Msg 15151, Level 16, State 1
 Cannot find the symmetric key 'CrewSSNKey', because it does not exist or you do not have permission.
 ```
 
 **Causes:**
+
 - Key not opened before use
 - Insufficient permissions
 - Key not created
 
 **Solutions:**
+
 ```sql
 -- Open the key
 OPEN SYMMETRIC KEY CrewSSNKey DECRYPTION BY CERTIFICATE CrewSSNCert;
@@ -1652,16 +1747,19 @@ ENCRYPTION BY CERTIFICATE CrewSSNCert;
 #### Issue 4: Database in Single User Mode
 
 **Symptoms:**
+
 ```
 Msg 924, Level 14, State 1
 Database 'CrewSchedulingDB' is already open and can only have one user at a time.
 ```
 
 **Causes:**
+
 - Previous script execution failed during database creation
 - Administrative maintenance in progress
 
 **Solutions:**
+
 ```sql
 -- Set to multi-user mode
 USE master;
@@ -1680,6 +1778,7 @@ DROP DATABASE CrewSchedulingDB;
 **Issue**: `fn_CalculateCrewHours` takes > 1 second for crew with many flights
 
 **Solution**:
+
 ```sql
 -- Ensure indexes exist
 CREATE INDEX IX_Flights_ActualDeparture_StatusID 
@@ -1695,6 +1794,7 @@ ON CrewAssignments(CrewID, FlightID);
 **Issue**: Scheduling takes > 5 seconds
 
 **Solution**:
+
 ```sql
 -- Update statistics
 UPDATE STATISTICS Crew;
@@ -1709,12 +1809,14 @@ ALTER INDEX ALL ON Flights REBUILD;
 ### 13.3 Diagnostic Queries
 
 #### Check Database Size
+
 ```sql
 USE CrewSchedulingDB;
 EXEC sp_spaceused;
 ```
 
 #### Check Table Sizes
+
 ```sql
 SELECT 
     t.NAME AS TableName,
@@ -1729,6 +1831,7 @@ ORDER BY TotalSpaceMB DESC;
 ```
 
 #### Check Active Connections
+
 ```sql
 SELECT 
     session_id,
@@ -1742,6 +1845,7 @@ WHERE database_id = DB_ID('CrewSchedulingDB');
 ```
 
 #### Check Long-Running Queries
+
 ```sql
 SELECT 
     r.session_id,
@@ -1774,14 +1878,8 @@ ORDER BY duration_seconds DESC;
 
 ### 14.3 File Structure
 
-```
+```text
 odloty/
-├── 00_reset_crew_database.sql          # Reset/clear database data
-├── 01_create_crew_database.sql         # Create database schema
-├── 02_insert_crew_data.sql             # Insert sample data
-├── 03_crew_logic.sql                   # Create functions, procedures, views
-├── 04_test_crew_logic.sql              # Test scripts
-├── 05_reports.sql                      # Report queries
 ├── complete_crew_system.sql            # All-in-one script
 ├── COMPREHENSIVE_DOCUMENTATION.md      # This file
 ├── README.md                           # Project overview
@@ -1791,19 +1889,8 @@ odloty/
 
 ### 14.4 Script Execution Order
 
-**Initial Setup:**
-1. `01_create_crew_database.sql` - Creates database and schema
-2. `02_insert_crew_data.sql` - Populates sample data
-3. `03_crew_logic.sql` - Creates business logic
-
-**Testing:**
-4. `04_test_crew_logic.sql` - Runs tests (optional)
-5. `05_reports.sql` - Generates reports (optional)
-
-**Maintenance:**
-- `00_reset_crew_database.sql` - Clears data for fresh start
-
 **Production Deployment:**
+
 - `complete_crew_system.sql` - One-step deployment
 
 ### 14.5 Glossary
@@ -1836,6 +1923,7 @@ This project is provided as-is for educational and technical audition purposes.
 ### 14.8 Contact
 
 For questions, issues, or suggestions:
+
 - Open an issue in the GitHub repository
 - Contact the development team
 
@@ -1846,4 +1934,3 @@ For questions, issues, or suggestions:
 *Last Updated: November 2025*  
 *Document Version: 2.0*  
 *Database Version: 2.0*
-
