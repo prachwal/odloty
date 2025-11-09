@@ -128,9 +128,10 @@ CREATE TABLE Crew (
     BaseAirportID INT NOT NULL,
     CrewTypeID TINYINT NOT NULL,
     SeniorityID TINYINT NOT NULL,
-    HoursLast40 DECIMAL(5,2) DEFAULT 0 NOT NULL,
-    HoursLast7 DECIMAL(5,2) DEFAULT 0 NOT NULL,
-    HoursLast28 DECIMAL(5,2) DEFAULT 0 NOT NULL,
+    -- Proper hour tracking as per 14 CFR regulations
+    HoursLast168 DECIMAL(6,2) DEFAULT 0 NOT NULL,  -- Last 168 hours (7 days) for 60h limit
+    HoursLast672 DECIMAL(6,2) DEFAULT 0 NOT NULL,  -- Last 672 hours (28 days) for 100h/190h limits
+    HoursLast365Days DECIMAL(7,2) DEFAULT 0 NOT NULL,  -- Last 365 days for 1000h limit
     IsActive BIT DEFAULT 1 NOT NULL,
     FOREIGN KEY (BaseAirportID) REFERENCES Airports(AirportID),
     FOREIGN KEY (CrewTypeID) REFERENCES CrewTypes(CrewTypeID),
@@ -151,6 +152,8 @@ CREATE TABLE Flights (
     FlightDuration INT NOT NULL,  -- in minutes
     ScheduledDeparture DATETIME2 NOT NULL,
     ActualDeparture DATETIME2 NULL,
+    ActualArrival DATETIME2 NULL,  -- Added for accurate duty time calculation
+    IsInternational BIT DEFAULT 0 NOT NULL,  -- Added for FA duty hour limits (14h domestic, 20h international)
     StatusID TINYINT NOT NULL,
     FOREIGN KEY (AirlineID) REFERENCES Airlines(AirlineID),
     FOREIGN KEY (DepartureAirportID) REFERENCES Airports(AirportID),
@@ -176,41 +179,32 @@ CREATE TABLE CrewAssignments (
 END
 GO
 
--- Indexes
-CREATE INDEX IX_Crew_BaseAirportID ON Crew(BaseAirportID);
-CREATE INDEX IX_Flights_DepartureAirportID ON Flights(DepartureAirportID);
-CREATE INDEX IX_Flights_StatusID ON Flights(StatusID);
-CREATE INDEX IX_CrewAssignments_FlightID ON CrewAssignments(FlightID);
-CREATE INDEX IX_CrewAssignments_CrewID ON CrewAssignments(CrewID);
-CREATE INDEX IX_CrewAssignments_RoleID ON CrewAssignments(RoleID);
+-- Indexes for performance optimization
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Crew_BaseAirportID' AND object_id = OBJECT_ID('Crew'))
+    CREATE INDEX IX_Crew_BaseAirportID ON Crew(BaseAirportID);
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Crew_CrewTypeID' AND object_id = OBJECT_ID('Crew'))
+    CREATE INDEX IX_Crew_CrewTypeID ON Crew(CrewTypeID);
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Flights_DepartureAirportID' AND object_id = OBJECT_ID('Flights'))
+    CREATE INDEX IX_Flights_DepartureAirportID ON Flights(DepartureAirportID);
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Flights_StatusID' AND object_id = OBJECT_ID('Flights'))
+    CREATE INDEX IX_Flights_StatusID ON Flights(StatusID);
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Flights_ScheduledDeparture' AND object_id = OBJECT_ID('Flights'))
+    CREATE INDEX IX_Flights_ScheduledDeparture ON Flights(ScheduledDeparture);
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_CrewAssignments_FlightID' AND object_id = OBJECT_ID('CrewAssignments'))
+    CREATE INDEX IX_CrewAssignments_FlightID ON CrewAssignments(FlightID);
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_CrewAssignments_CrewID' AND object_id = OBJECT_ID('CrewAssignments'))
+    CREATE INDEX IX_CrewAssignments_CrewID ON CrewAssignments(CrewID);
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_CrewAssignments_RoleID' AND object_id = OBJECT_ID('CrewAssignments'))
+    CREATE INDEX IX_CrewAssignments_RoleID ON CrewAssignments(RoleID);
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_CrewAssignments_AssignedAt' AND object_id = OBJECT_ID('CrewAssignments'))
+    CREATE INDEX IX_CrewAssignments_AssignedAt ON CrewAssignments(AssignedAt);
 GO
 
 -- Triggers
 
--- trg_UpdateCrewHours: After INSERT on CrewAssignments, update HoursLast* in Crew
-IF OBJECT_ID('trg_UpdateCrewHours', 'TR') IS NOT NULL
-    DROP TRIGGER trg_UpdateCrewHours;
-GO
-
-CREATE TRIGGER trg_UpdateCrewHours
-ON CrewAssignments
-AFTER INSERT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Open symmetric key for decryption/encryption if needed, but for simplicity, assume Hours are updated directly
-    -- In real scenario, calculate based on flight duration
-
-    UPDATE c
-    SET c.HoursLast40 = c.HoursLast40 + f.FlightDuration,
-        c.HoursLast7 = c.HoursLast7 + f.FlightDuration,
-        c.HoursLast28 = c.HoursLast28 + f.FlightDuration
-    FROM Crew c
-    INNER JOIN inserted i ON c.CrewID = i.CrewID
-    INNER JOIN Flights f ON i.FlightID = f.FlightID
-    WHERE f.ActualDeparture IS NOT NULL;  -- Only update when flight actually departed
-END
+-- NOTE: Trigger removed - hours will be calculated dynamically via function fn_CalculateCrewHours
+-- This provides more accurate tracking based on actual flight history
+-- See 03_crew_logic.sql for the calculation function
 GO
 
 -- Grant permissions to roles

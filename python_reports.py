@@ -187,12 +187,12 @@ def report_crew_exceeding_limits(pdf):
     pdf.chapter_title("Report 2: Crew exceeding hour limits")
     query = """
     SELECT c.CrewID, c.FirstName, c.LastName,
-           (c.HoursLast40 + c.HoursLast7 + c.HoursLast28) AS TotalHours,
-           CASE WHEN (c.CrewTypeID = 2 AND (c.HoursLast40 > 100 OR c.HoursLast7 > 60 OR c.HoursLast28 > 190)) OR (c.CrewTypeID = 1 AND (c.HoursLast7 > 14 OR c.HoursLast28 > 20)) THEN 'Exceeds' ELSE 'Within Limits' END AS WithinLimits,
+           (c.HoursLast168 + c.HoursLast168 + c.HoursLast672) AS TotalHours,
+           CASE WHEN (c.CrewTypeID = 2 AND (c.HoursLast168 > 100 OR c.HoursLast168 > 60 OR c.HoursLast672 > 190)) OR (c.CrewTypeID = 1 AND (c.HoursLast168 > 14 OR c.HoursLast672 > 20)) THEN 'Exceeds' ELSE 'Within Limits' END AS WithinLimits,
            sl.SeniorityName AS Seniority
     FROM Crew c
     JOIN SeniorityLevels sl ON c.SeniorityID = sl.SeniorityID
-    WHERE (c.CrewTypeID = 2 AND (c.HoursLast40 > 100 OR c.HoursLast7 > 60 OR c.HoursLast28 > 190)) OR (c.CrewTypeID = 1 AND (c.HoursLast7 > 14 OR c.HoursLast28 > 20))
+    WHERE (c.CrewTypeID = 2 AND (c.HoursLast168 > 100 OR c.HoursLast168 > 60 OR c.HoursLast672 > 190)) OR (c.CrewTypeID = 1 AND (c.HoursLast168 > 14 OR c.HoursLast672 > 20))
     ORDER BY c.CrewID
     """
     conn = get_connection()
@@ -253,7 +253,7 @@ def report_schedule_crew_for_flight(pdf, flight_id=92):
     JOIN Airports a ON c.BaseAirportID = a.AirportID
     JOIN SeniorityLevels sl ON c.SeniorityID = sl.SeniorityID
     WHERE c.IsActive = 1
-    AND dbo.fn_CheckHourLimits(c.CrewID) = 1
+    AND NOT EXISTS (SELECT 1 FROM dbo.fn_CheckHourLimits(c.CrewID) WHERE ExceedsLimits = 1)
     AND c.BaseAirportID = (SELECT DepartureAirportID FROM Flights WHERE FlightID = {flight_id})
     ORDER BY RestTimeHours DESC
     """
@@ -303,12 +303,12 @@ def report_crew_exceeding_limits_md(md_content):
     description = "This report lists crew members who have exceeded or are at risk of exceeding their work hour limitations as per regulatory requirements."
     query = """
     SELECT c.CrewID, c.FirstName, c.LastName,
-           (c.HoursLast40 + c.HoursLast7 + c.HoursLast28) AS TotalHours,
-           CASE WHEN (c.CrewTypeID = 2 AND (c.HoursLast40 > 100 OR c.HoursLast7 > 60 OR c.HoursLast28 > 190)) OR (c.CrewTypeID = 1 AND (c.HoursLast7 > 14 OR c.HoursLast28 > 20)) THEN 'Exceeds' ELSE 'Within Limits' END AS WithinLimits,
+           (c.HoursLast168 + c.HoursLast168 + c.HoursLast672) AS TotalHours,
+           CASE WHEN (c.CrewTypeID = 2 AND (c.HoursLast168 > 100 OR c.HoursLast168 > 60 OR c.HoursLast672 > 190)) OR (c.CrewTypeID = 1 AND (c.HoursLast168 > 14 OR c.HoursLast672 > 20)) THEN 'Exceeds' ELSE 'Within Limits' END AS WithinLimits,
            sl.SeniorityName AS Seniority
     FROM Crew c
     JOIN SeniorityLevels sl ON c.SeniorityID = sl.SeniorityID
-    WHERE (c.CrewTypeID = 2 AND (c.HoursLast40 > 100 OR c.HoursLast7 > 60 OR c.HoursLast28 > 190)) OR (c.CrewTypeID = 1 AND (c.HoursLast7 > 14 OR c.HoursLast28 > 20))
+    WHERE (c.CrewTypeID = 2 AND (c.HoursLast168 > 100 OR c.HoursLast168 > 60 OR c.HoursLast672 > 190)) OR (c.CrewTypeID = 1 AND (c.HoursLast168 > 14 OR c.HoursLast672 > 20))
     ORDER BY c.CrewID
     """
     conn = get_connection()
@@ -357,7 +357,7 @@ def report_schedule_crew_for_flight_md(md_content, flight_id=92):
     JOIN Airports a ON c.BaseAirportID = a.AirportID
     JOIN SeniorityLevels sl ON c.SeniorityID = sl.SeniorityID
     WHERE c.IsActive = 1
-    AND dbo.fn_CheckHourLimits(c.CrewID) = 1
+    AND NOT EXISTS (SELECT 1 FROM dbo.fn_CheckHourLimits(c.CrewID) WHERE ExceedsLimits = 1)
     AND c.BaseAirportID = (SELECT DepartureAirportID FROM Flights WHERE FlightID = {flight_id})
     ORDER BY RestTimeHours DESC
     """

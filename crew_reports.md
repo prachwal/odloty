@@ -97,6 +97,7 @@ This report shows all crew members currently on planes in flight, including thei
 |     21 | Nicole       | Diaz        |       11 | AA111           | Seattle          | Miami              | 2024-11-01 08:00:00 | 2024-11-01 11:20:00 | Cabin  | Senior      |
 |     41 | Nathan       | Soto        |       11 | AA111           | Seattle          | Miami              | 2024-11-01 08:00:00 | 2024-11-01 11:20:00 | Cabin  | Trainee     |
 |     31 | Taylor       | Vargas      |       11 | AA111           | Seattle          | Miami              | 2024-11-01 08:00:00 | 2024-11-01 11:20:00 | Cabin  | Journeyman  |
+|      4 | Emily        | Davis       |       11 | AA111           | Seattle          | Miami              | 2024-11-01 08:00:00 | 2024-11-01 11:20:00 | Pilot  | Senior      |
 |      1 | John         | Doe         |       11 | AA111           | Seattle          | Miami              | 2024-11-01 08:00:00 | 2024-11-01 11:20:00 | Pilot  | Senior      |
 |     11 | Paul         | Hernandez   |       11 | AA111           | Seattle          | Miami              | 2024-11-01 08:00:00 | 2024-11-01 11:20:00 | Pilot  | Journeyman  |
 |     42 | Isabella     | Mendoza     |       12 | DL212           | Boston           | Los Angeles        | 2024-12-05 10:30:00 | 2024-12-05 14:30:00 | Cabin  | Senior      |
@@ -144,31 +145,31 @@ This report shows all crew members currently on planes in flight, including thei
 |     30 | Austin       | Moreno      |       20 | HA1020          | Denver           | Miami              | 2025-08-15 07:45:00 | 2025-08-15 10:35:00 | Cabin  | Senior      |
 |     20 | Amanda       | Gomez       |       20 | HA1020          | Denver           | Miami              | 2025-08-15 07:45:00 | 2025-08-15 10:35:00 | Pilot  | Journeyman  |
 |     10 | Lisa         | Martinez    |       20 | HA1020          | Denver           | Miami              | 2025-08-15 07:45:00 | 2025-08-15 10:35:00 | Pilot  | Senior      |
-|     21 | Nicole       | Diaz        |       21 | AA121           | Seattle          | Dallas             | 2025-09-01 08:00:00 | 2025-09-01 10:40:00 | Cabin  | Senior      |
-|     41 | Nathan       | Soto        |       21 | AA121           | Seattle          | Dallas             | 2025-09-01 08:00:00 | 2025-09-01 10:40:00 | Cabin  | Trainee     |
-|     31 | Taylor       | Vargas      |       21 | AA121           | Seattle          | Dallas             | 2025-09-01 08:00:00 | 2025-09-01 10:40:00 | Cabin  | Journeyman  |
-|      1 | John         | Doe         |       21 | AA121           | Seattle          | Dallas             | 2025-09-01 08:00:00 | 2025-09-01 10:40:00 | Pilot  | Senior      |
-|     11 | Paul         | Hernandez   |       21 | AA121           | Seattle          | Dallas             | 2025-09-01 08:00:00 | 2025-09-01 10:40:00 | Pilot  | Journeyman  |
-|     42 | Isabella     | Mendoza     |       22 | DL222           | Boston           | New York           | 2025-09-15 10:30:00 | 2025-09-15 13:50:00 | Cabin  | Senior      |
-|     22 | Daniel       | Morales     |       22 | DL222           | Boston           | New York           | 2025-09-15 10:30:00 | 2025-09-15 13:50:00 | Cabin  | Journeyman  |
-|     32 | Madison      | Romero      |       22 | DL222           | Boston           | New York           | 2025-09-15 10:30:00 | 2025-09-15 13:50:00 | Cabin  | Trainee     |
-|     12 | Karen        | Lopez       |       22 | DL222           | Boston           | New York           | 2025-09-15 10:30:00 | 2025-09-15 13:50:00 | Pilot  | Trainee     |
-|      2 | Jane         | Smith       |       22 | DL222           | Boston           | New York           | 2025-09-15 10:30:00 | 2025-09-15 13:50:00 | Pilot  | Journeyman  |
-|     33 | Jordan       | Herrera     |       23 | UA323           | San Francisco    | Burlington         | 2025-10-01 14:00:00 | 2025-10-01 16:20:00 | Cabin  | Senior      |
-|     23 | Ashley       | Ortiz       |       23 | UA323           | San Francisco    | Burlington         | 2025-10-01 14:00:00 | 2025-10-01 16:20:00 | Cabin  | Trainee     |
-|     43 | Mason        | Silva       |       23 | UA323           | San Francisco    | Burlington         | 2025-10-01 14:00:00 | 2025-10-01 16:20:00 | Cabin  | Journeyman  |
-|     13 | Mark         | Gonzalez    |       23 | UA323           | San Francisco    | Burlington         | 2025-10-01 14:00:00 | 2025-10-01 16:20:00 | Pilot  | Senior      |
-|      3 | Mike         | Johnson     |       23 | UA323           | San Francisco    | Burlington         | 2025-10-01 14:00:00 | 2025-10-01 16:20:00 | Pilot  | Trainee     |
-|     24 | Tyler        | Gutierrez   |       24 | WN424           | Miami            | Chicago            | 2025-10-15 16:45:00 | 2025-10-15 19:55:00 | Cabin  | Senior      |
-|     34 | Alexis       | Medina      |       24 | WN424           | Miami            | Chicago            | 2025-10-15 16:45:00 | 2025-10-15 19:55:00 | Cabin  | Journeyman  |
-|     44 | Sophia       | Pena        |       24 | WN424           | Miami            | Chicago            | 2025-10-15 16:45:00 | 2025-10-15 19:55:00 | Cabin  | Trainee     |
-|      4 | Emily        | Davis       |       24 | WN424           | Miami            | Chicago            | 2025-10-15 16:45:00 | 2025-10-15 19:55:00 | Pilot  | Senior      |
-|     14 | Rachel       | Perez       |       24 | WN424           | Miami            | Chicago            | 2025-10-15 16:45:00 | 2025-10-15 19:55:00 | Pilot  | Journeyman  |
-|     25 | Megan        | Chavez      |       25 | B6525           | Los Angeles      | Denver             | 2025-11-01 09:15:00 | 2025-11-01 13:35:00 | Cabin  | Journeyman  |
-|     35 | Cameron      | Cortes      |       25 | B6525           | Los Angeles      | Denver             | 2025-11-01 09:15:00 | 2025-11-01 13:35:00 | Cabin  | Trainee     |
-|     45 | Logan        | Reyes       |       25 | B6525           | Los Angeles      | Denver             | 2025-11-01 09:15:00 | 2025-11-01 13:35:00 | Cabin  | Senior      |
-|     15 | Steve        | Sanchez     |       25 | B6525           | Los Angeles      | Denver             | 2025-11-01 09:15:00 | 2025-11-01 13:35:00 | Pilot  | Trainee     |
-|      5 | David        | Wilson      |       25 | B6525           | Los Angeles      | Denver             | 2025-11-01 09:15:00 | 2025-11-01 13:35:00 | Pilot  | Journeyman  |
+|     21 | Nicole       | Diaz        |       21 | AA121           | New York         | Seattle            | 2025-09-01 08:00:00 | 2025-09-01 23:00:00 | Cabin  | Senior      |
+|     41 | Nathan       | Soto        |       21 | AA121           | New York         | Seattle            | 2025-09-01 08:00:00 | 2025-09-01 23:00:00 | Cabin  | Trainee     |
+|     31 | Taylor       | Vargas      |       21 | AA121           | New York         | Seattle            | 2025-09-01 08:00:00 | 2025-09-01 23:00:00 | Cabin  | Journeyman  |
+|      1 | John         | Doe         |       21 | AA121           | New York         | Seattle            | 2025-09-01 08:00:00 | 2025-09-01 23:00:00 | Pilot  | Senior      |
+|     11 | Paul         | Hernandez   |       21 | AA121           | New York         | Seattle            | 2025-09-01 08:00:00 | 2025-09-01 23:00:00 | Pilot  | Journeyman  |
+|     42 | Isabella     | Mendoza     |       22 | DL222           | Boston           | Los Angeles        | 2025-09-15 10:30:00 | 2025-09-16 04:30:00 | Cabin  | Senior      |
+|     22 | Daniel       | Morales     |       22 | DL222           | Boston           | Los Angeles        | 2025-09-15 10:30:00 | 2025-09-16 04:30:00 | Cabin  | Journeyman  |
+|     32 | Madison      | Romero      |       22 | DL222           | Boston           | Los Angeles        | 2025-09-15 10:30:00 | 2025-09-16 04:30:00 | Cabin  | Trainee     |
+|     12 | Karen        | Lopez       |       22 | DL222           | Boston           | Los Angeles        | 2025-09-15 10:30:00 | 2025-09-16 04:30:00 | Pilot  | Trainee     |
+|      2 | Jane         | Smith       |       22 | DL222           | Boston           | Los Angeles        | 2025-09-15 10:30:00 | 2025-09-16 04:30:00 | Pilot  | Journeyman  |
+|     33 | Jordan       | Herrera     |       23 | UA323           | San Francisco    | Burlington         | 2025-10-01 14:00:00 | 2025-10-02 02:00:00 | Cabin  | Senior      |
+|     23 | Ashley       | Ortiz       |       23 | UA323           | San Francisco    | Burlington         | 2025-10-01 14:00:00 | 2025-10-02 02:00:00 | Cabin  | Trainee     |
+|     43 | Mason        | Silva       |       23 | UA323           | San Francisco    | Burlington         | 2025-10-01 14:00:00 | 2025-10-02 02:00:00 | Cabin  | Journeyman  |
+|     13 | Mark         | Gonzalez    |       23 | UA323           | San Francisco    | Burlington         | 2025-10-01 14:00:00 | 2025-10-02 02:00:00 | Pilot  | Senior      |
+|      3 | Mike         | Johnson     |       23 | UA323           | San Francisco    | Burlington         | 2025-10-01 14:00:00 | 2025-10-02 02:00:00 | Pilot  | Trainee     |
+|     24 | Tyler        | Gutierrez   |       24 | WN424           | Miami            | Chicago            | 2025-10-15 16:45:00 | 2025-10-16 11:45:00 | Cabin  | Senior      |
+|     34 | Alexis       | Medina      |       24 | WN424           | Miami            | Chicago            | 2025-10-15 16:45:00 | 2025-10-16 11:45:00 | Cabin  | Journeyman  |
+|     44 | Sophia       | Pena        |       24 | WN424           | Miami            | Chicago            | 2025-10-15 16:45:00 | 2025-10-16 11:45:00 | Cabin  | Trainee     |
+|      4 | Emily        | Davis       |       24 | WN424           | Miami            | Chicago            | 2025-10-15 16:45:00 | 2025-10-16 11:45:00 | Pilot  | Senior      |
+|     14 | Rachel       | Perez       |       24 | WN424           | Miami            | Chicago            | 2025-10-15 16:45:00 | 2025-10-16 11:45:00 | Pilot  | Journeyman  |
+|     25 | Megan        | Chavez      |       25 | B6525           | Los Angeles      | Denver             | 2025-11-01 09:15:00 | 2025-11-02 01:15:00 | Cabin  | Journeyman  |
+|     35 | Cameron      | Cortes      |       25 | B6525           | Los Angeles      | Denver             | 2025-11-01 09:15:00 | 2025-11-02 01:15:00 | Cabin  | Trainee     |
+|     45 | Logan        | Reyes       |       25 | B6525           | Los Angeles      | Denver             | 2025-11-01 09:15:00 | 2025-11-02 01:15:00 | Cabin  | Senior      |
+|     15 | Steve        | Sanchez     |       25 | B6525           | Los Angeles      | Denver             | 2025-11-01 09:15:00 | 2025-11-02 01:15:00 | Pilot  | Trainee     |
+|      5 | David        | Wilson      |       25 | B6525           | Los Angeles      | Denver             | 2025-11-01 09:15:00 | 2025-11-02 01:15:00 | Pilot  | Journeyman  |
 |     46 | Ava          | Cruz        |       26 | AS626           | New York         | Seattle            | 2024-01-20 08:00:00 | 2024-01-20 12:40:00 | Cabin  | Journeyman  |
 |     26 | Justin       | Ramos       |       26 | AS626           | New York         | Seattle            | 2024-01-20 08:00:00 | 2024-01-20 12:40:00 | Cabin  | Trainee     |
 |     36 | Kayla        | Santiago    |       26 | AS626           | New York         | Seattle            | 2024-01-20 08:00:00 | 2024-01-20 12:40:00 | Cabin  | Senior      |
@@ -249,52 +250,7 @@ This report shows all crew members currently on planes in flight, including thei
 
 This report lists crew members who have exceeded or are at risk of exceeding their work hour limitations as per regulatory requirements.
 
-|   Crew | First Name   | Last Name   |   Total Hours | Within Limits   | Seniority   |
-|-------:|:-------------|:------------|--------------:|:----------------|:------------|
-|      1 | John         | Doe         |           515 | Exceeds         | Senior      |
-|      2 | Jane         | Smith       |           660 | Exceeds         | Journeyman  |
-|      3 | Mike         | Johnson     |           375 | Exceeds         | Trainee     |
-|      4 | Emily        | Davis       |           300 | Exceeds         | Senior      |
-|      5 | David        | Wilson      |           932 | Exceeds         | Journeyman  |
-|      6 | Sarah        | Brown       |           823 | Exceeds         | Trainee     |
-|      7 | Chris        | Miller      |           416 | Exceeds         | Senior      |
-|      8 | Anna         | Garcia      |           619 | Exceeds         | Journeyman  |
-|      9 | Tom          | Rodriguez   |           487 | Exceeds         | Trainee     |
-|     10 | Lisa         | Martinez    |           458 | Exceeds         | Senior      |
-|     11 | Paul         | Hernandez   |           473 | Exceeds         | Journeyman  |
-|     12 | Karen        | Lopez       |           614 | Exceeds         | Trainee     |
-|     13 | Mark         | Gonzalez    |           492 | Exceeds         | Senior      |
-|     14 | Rachel       | Perez       |           399 | Exceeds         | Journeyman  |
-|     15 | Steve        | Sanchez     |           892 | Exceeds         | Trainee     |
-|     16 | Laura        | Ramirez     |           911 | Exceeds         | Senior      |
-|     17 | Kevin        | Torres      |           588 | Exceeds         | Journeyman  |
-|     18 | Jessica      | Flores      |           562 | Exceeds         | Trainee     |
-|     19 | Brian        | Rivera      |          1070 | Exceeds         | Senior      |
-|     20 | Amanda       | Gomez       |           424 | Exceeds         | Journeyman  |
-|     24 | Tyler        | Gutierrez   |           305 | Exceeds         | Senior      |
-|     27 | Hannah       | Guzman      |           479 | Exceeds         | Senior      |
-|     29 | Samantha     | Jimenez     |           917 | Exceeds         | Trainee     |
-|     30 | Austin       | Moreno      |           332 | Exceeds         | Senior      |
-|     31 | Taylor       | Vargas      |           381 | Exceeds         | Journeyman  |
-|     32 | Madison      | Romero      |           734 | Exceeds         | Trainee     |
-|     33 | Jordan       | Herrera     |           337 | Exceeds         | Senior      |
-|     34 | Alexis       | Medina      |           506 | Exceeds         | Journeyman  |
-|     35 | Cameron      | Cortes      |           826 | Exceeds         | Trainee     |
-|     36 | Kayla        | Santiago    |           779 | Exceeds         | Senior      |
-|     37 | Dylan        | Luna        |           473 | Exceeds         | Journeyman  |
-|     38 | Hailey       | Ortega      |           497 | Exceeds         | Trainee     |
-|     39 | Ethan        | Delgado     |           931 | Exceeds         | Senior      |
-|     40 | Avery        | Castro      |           326 | Exceeds         | Journeyman  |
-|     41 | Nathan       | Soto        |           380 | Exceeds         | Trainee     |
-|     42 | Isabella     | Mendoza     |           755 | Exceeds         | Senior      |
-|     43 | Mason        | Silva       |           322 | Exceeds         | Journeyman  |
-|     44 | Sophia       | Pena        |           494 | Exceeds         | Trainee     |
-|     45 | Logan        | Reyes       |           842 | Exceeds         | Senior      |
-|     46 | Ava          | Cruz        |           776 | Exceeds         | Journeyman  |
-|     47 | Jackson      | Fernandez   |           466 | Exceeds         | Trainee     |
-|     48 | Mia          | Ruiz        |           509 | Exceeds         | Senior      |
-|     49 | Liam         | Alvarez     |           923 | Exceeds         | Journeyman  |
-|     50 | Charlotte    | Morales     |           317 | Exceeds         | Trainee     |
+No data available.
 
 ## Report 3: Monthly hours worked by crew
 
@@ -304,23 +260,24 @@ This report provides a summary of hours worked per month by each crew member to 
 |-------:|:-------------|:------------|-------:|--------:|----------------:|:------------|
 |      1 | John         | Doe         |   2024 |       6 |            2    | Senior      |
 |      1 | John         | Doe         |   2024 |      11 |            3.33 | Senior      |
-|      1 | John         | Doe         |   2025 |       9 |            2.67 | Senior      |
+|      1 | John         | Doe         |   2025 |       9 |           15    | Senior      |
 |      2 | Jane         | Smith       |   2024 |       2 |            3    | Journeyman  |
 |      2 | Jane         | Smith       |   2024 |       7 |            4.83 | Journeyman  |
 |      2 | Jane         | Smith       |   2024 |      12 |            4    | Journeyman  |
-|      2 | Jane         | Smith       |   2025 |       9 |            3.33 | Journeyman  |
+|      2 | Jane         | Smith       |   2025 |       9 |           18    | Journeyman  |
 |      3 | Mike         | Johnson     |   2024 |       3 |            2.5  | Trainee     |
 |      3 | Mike         | Johnson     |   2024 |       8 |            1.67 | Trainee     |
 |      3 | Mike         | Johnson     |   2025 |       1 |            5.33 | Trainee     |
-|      3 | Mike         | Johnson     |   2025 |      10 |            2.33 | Trainee     |
+|      3 | Mike         | Johnson     |   2025 |      10 |           12    | Trainee     |
 |      4 | Emily        | Davis       |   2024 |       4 |            1.5  | Senior      |
 |      4 | Emily        | Davis       |   2024 |       9 |            5.33 | Senior      |
+|      4 | Emily        | Davis       |   2024 |      11 |            3.33 | Senior      |
 |      4 | Emily        | Davis       |   2025 |       2 |            2.67 | Senior      |
-|      4 | Emily        | Davis       |   2025 |      10 |            3.17 | Senior      |
+|      4 | Emily        | Davis       |   2025 |      10 |           19    | Senior      |
 |      5 | David        | Wilson      |   2024 |       5 |            5    | Journeyman  |
 |      5 | David        | Wilson      |   2024 |      10 |            4.5  | Journeyman  |
 |      5 | David        | Wilson      |   2025 |       3 |            4.17 | Journeyman  |
-|      5 | David        | Wilson      |   2025 |      11 |            4.33 | Journeyman  |
+|      5 | David        | Wilson      |   2025 |      11 |           16    | Journeyman  |
 |      6 | Sarah        | Brown       |   2024 |       1 |            8.17 | Trainee     |
 |      6 | Sarah        | Brown       |   2024 |       6 |            4.17 | Trainee     |
 |      6 | Sarah        | Brown       |   2025 |       4 |            2.17 | Trainee     |
@@ -338,23 +295,23 @@ This report provides a summary of hours worked per month by each crew member to 
 |     10 | Lisa         | Martinez    |   2025 |       8 |            2.83 | Senior      |
 |     11 | Paul         | Hernandez   |   2024 |       6 |            2    | Journeyman  |
 |     11 | Paul         | Hernandez   |   2024 |      11 |            3.33 | Journeyman  |
-|     11 | Paul         | Hernandez   |   2025 |       9 |            2.67 | Journeyman  |
+|     11 | Paul         | Hernandez   |   2025 |       9 |           15    | Journeyman  |
 |     12 | Karen        | Lopez       |   2024 |       2 |            3    | Trainee     |
 |     12 | Karen        | Lopez       |   2024 |       7 |            4.83 | Trainee     |
 |     12 | Karen        | Lopez       |   2024 |      12 |            4    | Trainee     |
-|     12 | Karen        | Lopez       |   2025 |       9 |            3.33 | Trainee     |
+|     12 | Karen        | Lopez       |   2025 |       9 |           18    | Trainee     |
 |     13 | Mark         | Gonzalez    |   2024 |       3 |            2.5  | Senior      |
 |     13 | Mark         | Gonzalez    |   2024 |       8 |            1.67 | Senior      |
 |     13 | Mark         | Gonzalez    |   2025 |       1 |            5.33 | Senior      |
-|     13 | Mark         | Gonzalez    |   2025 |      10 |            2.33 | Senior      |
+|     13 | Mark         | Gonzalez    |   2025 |      10 |           12    | Senior      |
 |     14 | Rachel       | Perez       |   2024 |       4 |            1.5  | Journeyman  |
 |     14 | Rachel       | Perez       |   2024 |       9 |            5.33 | Journeyman  |
 |     14 | Rachel       | Perez       |   2025 |       2 |            2.67 | Journeyman  |
-|     14 | Rachel       | Perez       |   2025 |      10 |            3.17 | Journeyman  |
+|     14 | Rachel       | Perez       |   2025 |      10 |           19    | Journeyman  |
 |     15 | Steve        | Sanchez     |   2024 |       5 |            5    | Trainee     |
 |     15 | Steve        | Sanchez     |   2024 |      10 |            4.5  | Trainee     |
 |     15 | Steve        | Sanchez     |   2025 |       3 |            4.17 | Trainee     |
-|     15 | Steve        | Sanchez     |   2025 |      11 |            4.33 | Trainee     |
+|     15 | Steve        | Sanchez     |   2025 |      11 |           16    | Trainee     |
 |     16 | Laura        | Ramirez     |   2024 |       1 |            8.17 | Senior      |
 |     16 | Laura        | Ramirez     |   2024 |       6 |            4.17 | Senior      |
 |     16 | Laura        | Ramirez     |   2025 |       4 |            2.17 | Senior      |
@@ -372,23 +329,23 @@ This report provides a summary of hours worked per month by each crew member to 
 |     20 | Amanda       | Gomez       |   2025 |       8 |            2.83 | Journeyman  |
 |     21 | Nicole       | Diaz        |   2024 |       6 |            2    | Senior      |
 |     21 | Nicole       | Diaz        |   2024 |      11 |            3.33 | Senior      |
-|     21 | Nicole       | Diaz        |   2025 |       9 |            2.67 | Senior      |
+|     21 | Nicole       | Diaz        |   2025 |       9 |           15    | Senior      |
 |     22 | Daniel       | Morales     |   2024 |       2 |            3    | Journeyman  |
 |     22 | Daniel       | Morales     |   2024 |       7 |            4.83 | Journeyman  |
 |     22 | Daniel       | Morales     |   2024 |      12 |            4    | Journeyman  |
-|     22 | Daniel       | Morales     |   2025 |       9 |            3.33 | Journeyman  |
+|     22 | Daniel       | Morales     |   2025 |       9 |           18    | Journeyman  |
 |     23 | Ashley       | Ortiz       |   2024 |       3 |            2.5  | Trainee     |
 |     23 | Ashley       | Ortiz       |   2024 |       8 |            1.67 | Trainee     |
 |     23 | Ashley       | Ortiz       |   2025 |       1 |            5.33 | Trainee     |
-|     23 | Ashley       | Ortiz       |   2025 |      10 |            2.33 | Trainee     |
+|     23 | Ashley       | Ortiz       |   2025 |      10 |           12    | Trainee     |
 |     24 | Tyler        | Gutierrez   |   2024 |       4 |            1.5  | Senior      |
 |     24 | Tyler        | Gutierrez   |   2024 |       9 |            5.33 | Senior      |
 |     24 | Tyler        | Gutierrez   |   2025 |       2 |            2.67 | Senior      |
-|     24 | Tyler        | Gutierrez   |   2025 |      10 |            3.17 | Senior      |
+|     24 | Tyler        | Gutierrez   |   2025 |      10 |           19    | Senior      |
 |     25 | Megan        | Chavez      |   2024 |       5 |            5    | Journeyman  |
 |     25 | Megan        | Chavez      |   2024 |      10 |            4.5  | Journeyman  |
 |     25 | Megan        | Chavez      |   2025 |       3 |            4.17 | Journeyman  |
-|     25 | Megan        | Chavez      |   2025 |      11 |            4.33 | Journeyman  |
+|     25 | Megan        | Chavez      |   2025 |      11 |           16    | Journeyman  |
 |     26 | Justin       | Ramos       |   2024 |       1 |            8.17 | Trainee     |
 |     26 | Justin       | Ramos       |   2024 |       6 |            4.17 | Trainee     |
 |     26 | Justin       | Ramos       |   2025 |       4 |            2.17 | Trainee     |
@@ -406,23 +363,23 @@ This report provides a summary of hours worked per month by each crew member to 
 |     30 | Austin       | Moreno      |   2025 |       8 |            2.83 | Senior      |
 |     31 | Taylor       | Vargas      |   2024 |       6 |            2    | Journeyman  |
 |     31 | Taylor       | Vargas      |   2024 |      11 |            3.33 | Journeyman  |
-|     31 | Taylor       | Vargas      |   2025 |       9 |            2.67 | Journeyman  |
+|     31 | Taylor       | Vargas      |   2025 |       9 |           15    | Journeyman  |
 |     32 | Madison      | Romero      |   2024 |       2 |            3    | Trainee     |
 |     32 | Madison      | Romero      |   2024 |       7 |            4.83 | Trainee     |
 |     32 | Madison      | Romero      |   2024 |      12 |            4    | Trainee     |
-|     32 | Madison      | Romero      |   2025 |       9 |            3.33 | Trainee     |
+|     32 | Madison      | Romero      |   2025 |       9 |           18    | Trainee     |
 |     33 | Jordan       | Herrera     |   2024 |       3 |            2.5  | Senior      |
 |     33 | Jordan       | Herrera     |   2024 |       8 |            1.67 | Senior      |
 |     33 | Jordan       | Herrera     |   2025 |       1 |            5.33 | Senior      |
-|     33 | Jordan       | Herrera     |   2025 |      10 |            2.33 | Senior      |
+|     33 | Jordan       | Herrera     |   2025 |      10 |           12    | Senior      |
 |     34 | Alexis       | Medina      |   2024 |       4 |            1.5  | Journeyman  |
 |     34 | Alexis       | Medina      |   2024 |       9 |            5.33 | Journeyman  |
 |     34 | Alexis       | Medina      |   2025 |       2 |            2.67 | Journeyman  |
-|     34 | Alexis       | Medina      |   2025 |      10 |            3.17 | Journeyman  |
+|     34 | Alexis       | Medina      |   2025 |      10 |           19    | Journeyman  |
 |     35 | Cameron      | Cortes      |   2024 |       5 |            5    | Trainee     |
 |     35 | Cameron      | Cortes      |   2024 |      10 |            4.5  | Trainee     |
 |     35 | Cameron      | Cortes      |   2025 |       3 |            4.17 | Trainee     |
-|     35 | Cameron      | Cortes      |   2025 |      11 |            4.33 | Trainee     |
+|     35 | Cameron      | Cortes      |   2025 |      11 |           16    | Trainee     |
 |     36 | Kayla        | Santiago    |   2024 |       1 |            8.17 | Senior      |
 |     36 | Kayla        | Santiago    |   2024 |       6 |            4.17 | Senior      |
 |     36 | Kayla        | Santiago    |   2025 |       4 |            2.17 | Senior      |
@@ -440,23 +397,23 @@ This report provides a summary of hours worked per month by each crew member to 
 |     40 | Avery        | Castro      |   2025 |       8 |            2.83 | Journeyman  |
 |     41 | Nathan       | Soto        |   2024 |       6 |            2    | Trainee     |
 |     41 | Nathan       | Soto        |   2024 |      11 |            3.33 | Trainee     |
-|     41 | Nathan       | Soto        |   2025 |       9 |            2.67 | Trainee     |
+|     41 | Nathan       | Soto        |   2025 |       9 |           15    | Trainee     |
 |     42 | Isabella     | Mendoza     |   2024 |       2 |            3    | Senior      |
 |     42 | Isabella     | Mendoza     |   2024 |       7 |            4.83 | Senior      |
 |     42 | Isabella     | Mendoza     |   2024 |      12 |            4    | Senior      |
-|     42 | Isabella     | Mendoza     |   2025 |       9 |            3.33 | Senior      |
+|     42 | Isabella     | Mendoza     |   2025 |       9 |           18    | Senior      |
 |     43 | Mason        | Silva       |   2024 |       3 |            2.5  | Journeyman  |
 |     43 | Mason        | Silva       |   2024 |       8 |            1.67 | Journeyman  |
 |     43 | Mason        | Silva       |   2025 |       1 |            5.33 | Journeyman  |
-|     43 | Mason        | Silva       |   2025 |      10 |            2.33 | Journeyman  |
+|     43 | Mason        | Silva       |   2025 |      10 |           12    | Journeyman  |
 |     44 | Sophia       | Pena        |   2024 |       4 |            1.5  | Trainee     |
 |     44 | Sophia       | Pena        |   2024 |       9 |            5.33 | Trainee     |
 |     44 | Sophia       | Pena        |   2025 |       2 |            2.67 | Trainee     |
-|     44 | Sophia       | Pena        |   2025 |      10 |            3.17 | Trainee     |
+|     44 | Sophia       | Pena        |   2025 |      10 |           19    | Trainee     |
 |     45 | Logan        | Reyes       |   2024 |       5 |            5    | Senior      |
 |     45 | Logan        | Reyes       |   2024 |      10 |            4.5  | Senior      |
 |     45 | Logan        | Reyes       |   2025 |       3 |            4.17 | Senior      |
-|     45 | Logan        | Reyes       |   2025 |      11 |            4.33 | Senior      |
+|     45 | Logan        | Reyes       |   2025 |      11 |           16    | Senior      |
 |     46 | Ava          | Cruz        |   2024 |       1 |            8.17 | Journeyman  |
 |     46 | Ava          | Cruz        |   2024 |       6 |            4.17 | Journeyman  |
 |     46 | Ava          | Cruz        |   2025 |       4 |            2.17 | Journeyman  |
@@ -477,9 +434,5 @@ This report provides a summary of hours worked per month by each crew member to 
 
 This report suggests available crew members for scheduling on a specific flight, prioritizing those with the most rest time.
 
-|   Crew | First Name   | Last Name   | Base City   |   Rest Time Hours | Seniority   |
-|-------:|:-------------|:------------|:------------|------------------:|:------------|
-|     45 | Logan        | Reyes       | Dallas      |               235 | Senior      |
-|     35 | Cameron      | Cortes      | Dallas      |               235 | Trainee     |
-|     15 | Steve        | Sanchez     | Dallas      |               235 | Trainee     |
+No data available.
 

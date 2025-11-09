@@ -21,11 +21,11 @@ GO
 -- Test fn_CheckHourLimits
 PRINT 'Testing fn_CheckHourLimits...';
 -- Note: Hours may have been updated by previous tests/triggers
-DECLARE @TestCrewID INT = 1; -- John Doe, initial HoursLast40=95 (<100)
+DECLARE @TestCrewID INT = 1; -- John Doe, initial HoursLast168=95 (<100)
 DECLARE @Result BIT = dbo.fn_CheckHourLimits(@TestCrewID);
 PRINT 'CrewID 1 (John Doe): Actual: ' + CAST(@Result AS NVARCHAR(1)) + ' (May be 1 if updated by triggers)';
 
-SET @TestCrewID = 4; -- Emily Davis, initial HoursLast40=110 (>100)
+SET @TestCrewID = 4; -- Emily Davis, initial HoursLast168=110 (>100)
 SET @Result = dbo.fn_CheckHourLimits(@TestCrewID);
 PRINT 'CrewID 4 (Emily Davis): Actual: ' + CAST(@Result AS NVARCHAR(1)) + ' (Expected: 1)';
 
@@ -62,11 +62,12 @@ GO
 -- Test triggers: trg_AfterAssignment (via sp_ScheduleCrew)
 PRINT 'Testing trg_AfterAssignment via sp_ScheduleCrew...';
 -- First, check initial hours for a crew
-SELECT CrewID, HoursLast40 FROM Crew WHERE CrewID = 1;
--- Schedule crew for a flight (use existing scheduled flight, e.g., 2)
-EXEC sp_ScheduleCrew @FlightID = 84; -- Assuming FlightID 84 is scheduled
+SELECT CrewID, HoursLast168 FROM Crew WHERE CrewID = 1;
+-- Schedule crew for a flight (set flight 1 to scheduled and schedule it)
+UPDATE Flights SET StatusID=1 WHERE FlightID=1;
+EXEC sp_ScheduleCrew @FlightID = 1;
 -- Check updated hours
-SELECT CrewID, HoursLast40 FROM Crew WHERE CrewID = 1;
+SELECT CrewID, HoursLast168 FROM Crew WHERE CrewID = 1;
 PRINT 'Hours updated after assignment';
 GO
 
