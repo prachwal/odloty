@@ -241,18 +241,20 @@ def report_monthly_hours(pdf):
         pdf.cell(0, 10, "No monthly hours data.", 0, 1)
     conn.close()
 
-def report_schedule_crew_for_flight(pdf, flight_id=92):
+def report_schedule_crew_for_flight(pdf, flight_id=1):
     pdf.set_font('Arial', '', 10)
     pdf.multi_cell(0, 5, "This report suggests available crew members for scheduling on a specific flight, prioritizing those with the most rest time.")
     pdf.ln(2)
     pdf.chapter_title(f"Report 4: Schedule crew for flight (FlightID: {flight_id})")
     query = """
     SELECT TOP 5 c.CrewID, c.FirstName, c.LastName, a.City AS BaseCity,
+           ct.CrewTypeName AS CrewType,
            dbo.fn_CalculateRestTime(c.CrewID, ?) AS RestTimeHours,
            sl.SeniorityName AS Seniority
     FROM Crew c
     JOIN Airports a ON c.BaseAirportID = a.AirportID
     JOIN SeniorityLevels sl ON c.SeniorityID = sl.SeniorityID
+    JOIN CrewTypes ct ON c.CrewTypeID = ct.CrewTypeID
     WHERE c.IsActive = 1
     AND NOT EXISTS (SELECT 1 FROM dbo.fn_CheckHourLimits(c.CrewID) WHERE ExceedsLimits = 1)
     AND c.BaseAirportID = (SELECT DepartureAirportID FROM Flights WHERE FlightID = ?)
@@ -262,10 +264,10 @@ def report_schedule_crew_for_flight(pdf, flight_id=92):
     cursor = conn.cursor()
     cursor.execute(query, (flight_id, flight_id))
     rows = cursor.fetchall()
-    headers = ['Crew', 'First Name', 'Last Name', 'Base City', 'Rest Time Hours', 'Seniority']
-    data = [[row.CrewID, row.FirstName, row.LastName, row.BaseCity, row.RestTimeHours, row.Seniority] for row in rows]
+    headers = ['Crew', 'First Name', 'Last Name', 'Base City', 'Crew Type', 'Rest Time Hours', 'Seniority']
+    data = [[row.CrewID, row.FirstName, row.LastName, row.BaseCity, row.CrewType, row.RestTimeHours, row.Seniority] for row in rows]
     if data:
-        col_widths = [12, 17, 17, 22, 17, 12]
+        col_widths = [12, 17, 17, 22, 15, 17, 12]
         pdf.add_table(headers, data, col_widths)
     else:
         pdf.cell(0, 10, "No available crew found.", 0, 1)
@@ -348,16 +350,18 @@ def report_monthly_hours_md(md_content):
     add_md_table(md_content, headers, data, description)
     conn.close()
 
-def report_schedule_crew_for_flight_md(md_content, flight_id=92):
+def report_schedule_crew_for_flight_md(md_content, flight_id=1):
     add_md_title(md_content, f"Report 4: Schedule crew for flight (FlightID: {flight_id})")
     description = "This report suggests available crew members for scheduling on a specific flight, prioritizing those with the most rest time."
     query = """
     SELECT TOP 5 c.CrewID, c.FirstName, c.LastName, a.City AS BaseCity,
+           ct.CrewTypeName AS CrewType,
            dbo.fn_CalculateRestTime(c.CrewID, ?) AS RestTimeHours,
            sl.SeniorityName AS Seniority
     FROM Crew c
     JOIN Airports a ON c.BaseAirportID = a.AirportID
     JOIN SeniorityLevels sl ON c.SeniorityID = sl.SeniorityID
+    JOIN CrewTypes ct ON c.CrewTypeID = ct.CrewTypeID
     WHERE c.IsActive = 1
     AND NOT EXISTS (SELECT 1 FROM dbo.fn_CheckHourLimits(c.CrewID) WHERE ExceedsLimits = 1)
     AND c.BaseAirportID = (SELECT DepartureAirportID FROM Flights WHERE FlightID = ?)
@@ -367,8 +371,8 @@ def report_schedule_crew_for_flight_md(md_content, flight_id=92):
     cursor = conn.cursor()
     cursor.execute(query, (flight_id, flight_id))
     rows = cursor.fetchall()
-    headers = ['Crew', 'First Name', 'Last Name', 'Base City', 'Rest Time Hours', 'Seniority']
-    data = [[row.CrewID, row.FirstName, row.LastName, row.BaseCity, row.RestTimeHours, row.Seniority] for row in rows]
+    headers = ['Crew', 'First Name', 'Last Name', 'Base City', 'Crew Type', 'Rest Time Hours', 'Seniority']
+    data = [[row.CrewID, row.FirstName, row.LastName, row.BaseCity, row.CrewType, row.RestTimeHours, row.Seniority] for row in rows]
     add_md_table(md_content, headers, data, description)
     conn.close()
 

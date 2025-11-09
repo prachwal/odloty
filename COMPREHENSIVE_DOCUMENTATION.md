@@ -141,35 +141,9 @@ Compatibility:    150 (SQL Server 2019)
 
 ### 3.2 Entity Relationship Diagram
 
-```text
-┌─────────────┐           ┌─────────────┐           ┌─────────────┐
-│  Airlines   │           │   Flights   │           │  Airports   │
-│─────────────│           │─────────────│           │─────────────│
-│ AirlineID PK│1────────M │ FlightID PK │M─────────1│ AirportID PK│
-│ AirlineName │           │ AirlineID FK│           │ City        │
-│ IATACode    │           │ DepartureAID│◄──────────│ Country     │
-└─────────────┘           │ DestinatiAID│           │ IATACode    │
-                          │ FlightNumber│           └──────┬──────┘
-                          │ Duration    │                  │
-                          │ Scheduled...│                  │
-                          │ Actual...   │                  │1
-                          │ StatusID FK │                  │
-                          └──────┬──────┘                  │
-                                 │1                        │
-                                 │                         │M
-                                 │M              ┌─────────▼──────┐
-                          ┌──────▼──────┐        │      Crew      │
-                          │CrewAssign   │        │────────────────│
-                          │─────────────│        │ CrewID PK      │
-                          │AssignmentID │        │ FirstName      │
-                          │FlightID FK  │M──────1│ LastName       │
-                          │CrewID FK    │        │ SSN (encrypted)│
-                          │RoleID FK    │        │ BaseAirportIDFK│
-                          │AssignedAt   │        │ CrewTypeID FK  │
-                          └─────────────┘        │ SeniorityID FK │
-                                                 │ IsActive       │
-                                                 └────────────────┘
-```
+![Entity Relationship Diagram](er_diagram.png)
+
+*Figure 1: Entity Relationship Diagram showing relationships between Airlines, Flights, Airports, CrewAssignments, and Crew tables.*
 
 ### 3.3 Table Inventory
 
@@ -1463,48 +1437,9 @@ The sample data includes edge cases:
 
 ### 12.2 Multi-Tier Architecture
 
-```text
-                  ┌─────────────────────────┐
-                  │  Global Load Balancer   │
-                  │    (DNS-based Routing)  │
-                  └────────────┬────────────┘
-                               │
-                   ┌───────────┴───────────┐
-                   │                       │
-        ┌──────────▼──────────┐ ┌─────────▼──────────┐
-        │  Region 1 (Americas) │ │ Region 2 (Europe)  │
-        └──────────┬──────────┘ └─────────┬──────────┘
-                   │                       │
-        ┌──────────▼──────────┐ ┌─────────▼──────────┐
-        │   Load Balancer     │ │   Load Balancer     │
-        │   (Layer 7 - HTTP)  │ │   (Layer 7 - HTTP)  │
-        └──────────┬──────────┘ └─────────┬──────────┘
-                   │                       │
-    ┌──────────────┼──────────────┐       │
-    │              │              │       │
-┌───▼───┐      ┌───▼───┐      ┌───▼───┐  │
-│App Srv│      │App Srv│      │App Srv│  │
-│   1   │      │   2   │      │   3   │  │ ...
-└───┬───┘      └───┬───┘      └───┬───┘  │
-    │              │              │       │
-    └──────────────┼──────────────┘       │
-                   │                       │
-        ┌──────────▼──────────────────────▼─────────┐
-        │     SQL Server Always On AG              │
-        └──────────┬──────────────────────┬─────────┘
-                   │                       │
-      ┌────────────▼────────────┐ ┌───────▼────────────┐
-      │  Primary Replica        │ │ Sync Secondary     │
-      │  - Read/Write           │ │ - Auto Failover    │
-      │  - Automatic Failover   │ │ - Read-Only Routing│
-      └─────────────────────────┘ └────────────────────┘
-                   │
-      ┌────────────▼────────────┐
-      │  Async Secondary (DR)   │
-      │  - Manual Failover      │
-      │  - Different Datacenter │
-      └─────────────────────────┘
-```
+![Multi-Tier Architecture Diagram](architecture_diagram.png)
+
+*Figure 2: Multi-tier architecture showing global load balancing, regional distribution, application servers, and SQL Server Always On Availability Group with disaster recovery.*
 
 ### 12.3 Component Details
 
@@ -1637,7 +1572,7 @@ WITH COMPRESSION;
 
 **Symptoms:**
 
-```
+```text
 Msg 50000, Level 16, State 1
 Insufficient pilots available (need 2).
 ```
@@ -1716,7 +1651,7 @@ WHERE ActualDeparture IS NOT NULL
 
 **Symptoms:**
 
-```
+```text
 Msg 15151, Level 16, State 1
 Cannot find the symmetric key 'CrewSSNKey', because it does not exist or you do not have permission.
 ```
@@ -1748,7 +1683,7 @@ ENCRYPTION BY CERTIFICATE CrewSSNCert;
 
 **Symptoms:**
 
-```
+```text
 Msg 924, Level 14, State 1
 Database 'CrewSchedulingDB' is already open and can only have one user at a time.
 ```

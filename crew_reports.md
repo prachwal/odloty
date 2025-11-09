@@ -561,9 +561,15 @@ This report provides a summary of hours worked per month by each crew member to 
 |     50 | Charlotte    | Morales     |   2025 |       8 |            2.83 | Trainee     |
 |     50 | Charlotte    | Morales     |   2025 |      11 |           10    | Trainee     |
 
-## Report 4: Schedule crew for flight (FlightID: 92)
+## Report 4: Schedule crew for flight (FlightID: 1)
 
 This report suggests available crew members for scheduling on a specific flight, prioritizing those with the most rest time.
 
-No data available.
+|   Crew | First Name   | Last Name   | Base City   | Crew Type        |   Rest Time Hours | Seniority   |
+|-------:|:-------------|:------------|:------------|:-----------------|------------------:|:------------|
+|      6 | Sarah        | Brown       | New York    | Pilot            |            -15450 | Trainee     |
+|     36 | Kayla        | Santiago    | New York    | Flight Attendant |            -15907 | Senior      |
+|     26 | Justin       | Ramos       | New York    | Flight Attendant |            -15916 | Trainee     |
+|      1 | John         | Doe         | New York    | Pilot            |            -15938 | Senior      |
+|     46 | Ava          | Cruz        | New York    | Flight Attendant |            -15945 | Journeyman  |
 

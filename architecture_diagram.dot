@@ -1,0 +1,63 @@
+digraph MultiTier_Architecture {
+    rankdir=TB;
+    node [shape=box, style=filled, fontname=Arial, fontsize=10];
+    edge [fontname=Arial, fontsize=9];
+
+    // Global Load Balancer
+    GLB [label="Global Load Balancer\n(DNS-based Routing)", fillcolor=lightblue, shape=ellipse];
+
+    // Regional Load Balancers
+    RLB1 [label="Load Balancer\n(Layer 7 - HTTP)\nRegion 1 (Americas)", fillcolor=lightgreen];
+    RLB2 [label="Load Balancer\n(Layer 7 - HTTP)\nRegion 2 (Europe)", fillcolor=lightgreen];
+
+    // Application Servers
+    subgraph cluster_region1 {
+        label="Region 1";
+        style=filled;
+        color=lightgrey;
+        AS11 [label="App Server 1", fillcolor=orange];
+        AS12 [label="App Server 2", fillcolor=orange];
+        AS13 [label="App Server 3", fillcolor=orange];
+    }
+
+    subgraph cluster_region2 {
+        label="Region 2";
+        style=filled;
+        color=lightgrey;
+        AS21 [label="App Server 1", fillcolor=orange];
+        AS22 [label="App Server 2", fillcolor=orange];
+    }
+
+    // Database Layer
+    subgraph cluster_db {
+        label="SQL Server Always On AG";
+        style=filled;
+        color=lightcyan;
+
+        Primary [label="Primary Replica\n- Read/Write\n- Automatic Failover", fillcolor=yellow];
+        Secondary [label="Sync Secondary\n- Auto Failover\n- Read-Only Routing", fillcolor=lightyellow];
+        DR [label="Async Secondary (DR)\n- Manual Failover\n- Different Datacenter", fillcolor=lightpink];
+    }
+
+    // Connections
+    GLB -> RLB1;
+    GLB -> RLB2;
+
+    RLB1 -> AS11;
+    RLB1 -> AS12;
+    RLB1 -> AS13;
+
+    RLB2 -> AS21;
+    RLB2 -> AS22;
+
+    AS11 -> Primary [label="Read/Write"];
+    AS12 -> Primary;
+    AS13 -> Primary;
+    AS21 -> Primary [label="Read/Write"];
+    AS22 -> Primary;
+
+    Primary -> Secondary [label="Sync"];
+    Secondary -> Primary [label="Sync"];
+
+    Primary -> DR [label="Async"];
+}

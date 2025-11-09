@@ -1,0 +1,23 @@
+digraph ER_Diagram {
+    rankdir=TB;
+    node [shape=box, style=filled, fillcolor=lightblue, fontname=Arial, fontsize=10];
+
+    // Tables
+    Airlines [label="Airlines\n• AirlineID (PK)\n• AirlineName\n• IATACode", fillcolor=lightcyan];
+    Flights [label="Flights\n• FlightID (PK)\n• AirlineID (FK)\n• DepartureAID (FK)\n• DestinatiAID (FK)\n• FlightNumber\n• Duration\n• ScheduledDeparture\n• ActualDeparture\n• StatusID (FK)", fillcolor=lightyellow];
+    Airports [label="Airports\n• AirportID (PK)\n• City\n• Country\n• IATACode", fillcolor=lightgreen];
+    CrewAssignments [label="CrewAssignments\n• AssignmentID (PK)\n• FlightID (FK)\n• CrewID (FK)\n• RoleID (FK)\n• AssignedAt", fillcolor=lightsalmon];
+    Crew [label="Crew\n• CrewID (PK)\n• FirstName\n• LastName\n• SSN (encrypted)\n• BaseAirportID (FK)\n• CrewTypeID (FK)\n• SeniorityID (FK)\n• IsActive", fillcolor=pink];
+
+    // Relationships
+    Airlines -> Flights [label="1-*"];
+    Flights -> Airports [label="*-1 (Departure)"];
+    Flights -> Airports [label="*-1 (Destination)"];
+    Flights -> CrewAssignments [label="1-*"];
+    CrewAssignments -> Crew [label="*-1"];
+    Crew -> Airports [label="*-1 (Base)"];
+
+    // Layout
+    {rank=same; Airlines; Flights;}
+    {rank=same; Airports; CrewAssignments;}
+}
