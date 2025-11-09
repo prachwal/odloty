@@ -84,7 +84,7 @@ The **Crew Scheduling System** is a mission-critical application designed for wo
 
 ### Entity-Relationship Diagram (ERD)
 
-```
+```text
 ┌──────────────┐         ┌──────────────┐         ┌──────────────┐
 │   Airports   │         │    Flights   │         │ FlightStatus │
 ├──────────────┤         ├──────────────┤         ├──────────────┤
